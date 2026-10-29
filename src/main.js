@@ -82,6 +82,23 @@ for (const a of document.querySelectorAll('a[href^="#"]')) {
     if (lenis) lenis.scrollTo(id, { duration: 1.4 }); else document.querySelector(id).scrollIntoView();
   });
 }
+// ------------------------------------------------------------------ phone menu: the burger opens the nav full screen
+{
+  const bar = document.querySelector('.nav');
+  const btn = bar.querySelector('.menu-btn');
+  const setOpen = (open) => {
+    bar.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', String(open));
+    btn.setAttribute('aria-label', open ? 'Close menu' : 'Menu');
+    document.documentElement.style.overflow = open ? 'hidden' : '';
+    if (lenis) open ? lenis.stop() : lenis.start();
+  };
+  btn.addEventListener('click', () => setOpen(!bar.classList.contains('open')));
+  // close first so the link's own smooth scroll (registered above) runs with scrolling switched back on
+  for (const a of bar.querySelectorAll('nav a')) a.addEventListener('click', () => setOpen(false), { capture: true });
+  addEventListener('keydown', (e) => { if (e.key === 'Escape' && bar.classList.contains('open')) { setOpen(false); btn.focus(); } });
+  matchMedia('(max-aspect-ratio: 1/1), (max-width: 700px)').addEventListener('change', () => setOpen(false));
+}
 let heroP = 0;
 ScrollTrigger.create({ trigger: '.hero', start: 'top top', end: 'bottom top', onUpdate: (s) => { heroP = s.progress; } });
 const nav = document.querySelector('.nav');
@@ -111,7 +128,7 @@ for (const g of document.querySelectorAll('.game')) {
 // ------------------------------------------------------------------ entrance: one orchestrated reveal
 if (!reduced) {
   gsap.timeline({ defaults: { ease: 'power3.out' } })
-    .from('.nav', { y: -30, opacity: 0, duration: 0.8 })
+    .from('.nav', { y: -30, opacity: 0, duration: 0.8, clearProps: 'transform' }) // a leftover transform would trap the phone menu inside the bar
     .from('.kicker', { x: -30, opacity: 0, duration: 0.7 }, 0.15)
     .from('.logo span', { x: -60, opacity: 0, skewX: 12, duration: 1 }, 0.2)
     .from('.motto', { x: -30, opacity: 0, duration: 0.7 }, 0.45)

@@ -39,6 +39,7 @@ a { color: inherit; }
 .social a { width: max(20px, 1.6vw); height: max(20px, 1.6vw); color: #0d1a12; transition: color 0.2s, transform 0.2s; }
 .social a:hover { color: var(--green); transform: translateY(-2px); }
 .social svg { width: 100%; height: 100%; fill: currentColor; }
+.menu-btn { display: none; }
 
 /* ---------------------------------------------------------------- hero: the painted scene fills the screen, live UI on top */
 .hero { position: relative; height: 100vh; min-height: 560px; overflow: hidden; background: var(--paper); }
@@ -185,8 +186,35 @@ a { color: inherit; }
 @media (prefers-reduced-motion: reduce) { #tracer { display: none; } }
 
 @media (max-aspect-ratio: 1/1), (max-width: 700px) {
-  .nav { grid-template-columns: 1fr auto; }
-  .nav nav { display: none; }
+  /* phones: the links move into a full-screen menu opened by the burger button */
+  .nav { grid-template-columns: 1fr auto auto; gap: 4vw; }
+  .nav nav {
+    position: fixed; inset: 0; z-index: -1; flex-direction: column; justify-content: center; gap: 1.2vh;
+    padding: 0 10vw; background: rgba(238, 245, 239, 0.97); backdrop-filter: blur(14px);
+    opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0s 0.3s;
+  }
+  .nav.open nav { opacity: 1; visibility: visible; transition: opacity 0.3s; }
+  .nav.open { background: transparent; backdrop-filter: none; } /* a backdrop-filter here would trap the fixed menu inside the bar */
+  .nav nav a {
+    align-self: flex-start; padding: 0.6vh 0; font-size: max(34px, 11vw); line-height: 1.05;
+    font-weight: 900; font-style: italic; font-variation-settings: 'wdth' 125; letter-spacing: -0.04em;
+    transform: translateY(14px); opacity: 0; transition: transform 0.4s, opacity 0.4s, color 0.2s;
+  }
+  .nav.open nav a { transform: none; opacity: 1; }
+  .nav.open nav a:nth-child(2) { transition-delay: 0.04s; }
+  .nav.open nav a:nth-child(3) { transition-delay: 0.08s; }
+  .nav.open nav a:nth-child(4) { transition-delay: 0.12s; }
+  .nav.open nav a:nth-child(5) { transition-delay: 0.16s; }
+  .nav.open nav a:nth-child(6) { transition-delay: 0.2s; }
+  .nav nav a::after { height: 4px; bottom: 2px; }
+  .menu-btn {
+    display: grid; place-content: center; gap: 5px; width: 42px; height: 42px; padding: 0; border: 0; border-radius: 12px; cursor: pointer;
+    background: linear-gradient(180deg, #13702e, #0a4d1d); box-shadow: 0 0 0 2px rgba(46, 227, 91, 0.5), 0 0 16px rgba(46, 227, 91, 0.35);
+  }
+  .menu-btn i { display: block; width: 20px; height: 2.5px; border-radius: 2px; background: #fff; transition: transform 0.3s, opacity 0.2s; }
+  .nav.open .menu-btn i:nth-child(1) { transform: translateY(7.5px) rotate(45deg); }
+  .nav.open .menu-btn i:nth-child(2) { opacity: 0; }
+  .nav.open .menu-btn i:nth-child(3) { transform: translateY(-7.5px) rotate(-45deg); }
   .hero { height: 100svh; }
   .hero-copy { top: 11vh; left: 0; right: 0; text-align: center; }
   .kicker { margin-left: 0; font-size: max(9px, 2.3vw); letter-spacing: 0.24em; }
