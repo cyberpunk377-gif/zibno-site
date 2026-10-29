@@ -84,7 +84,9 @@ for (const g of GUIDES) {
 <article class="gart">
 ${g.video ? `<a class="watch" href="https://www.youtube.com/watch?v=${g.video}" target="_blank" rel="noopener"><img src="/videos/${g.video}.jpg" alt="${esc(g.title)}, video thumbnail" width="640" height="360"><span>${g.relatedVideo ? 'Related video on my channel' : 'Watch the video on YouTube'}</span></a>` : `<img class="hero-img" src="${g.image}" alt="${esc(g.game)}" width="640" height="360">`}
 ${g.body.map(block).join('\n')}
-<p class="by">${g.body.some(([t]) => t === 'src') ? 'Written by Zibno from the sources listed above. I update this page when something official changes.' : 'Written by Zibno, based on my video. Settings can change with game updates.'}</p>
+<p class="by">${!g.body.some(([t]) => t === 'src') ? 'Written by Zibno, based on my video. Settings can change with game updates.'
+  : g.video && !g.relatedVideo ? 'Written by Zibno, based on my video, with extra research from the sources listed above. Settings can change with game updates.'
+  : 'Written by Zibno from the sources listed above. I update this page when something official changes.'}</p>
 </article>
 <aside class="side">
 <nav class="toc" aria-label="On this page"><b>On this page</b><ol>${toc.map(([id, text]) => `<li><a href="#${id}">${esc(text)}</a></li>`).join('')}</ol></nav>
