@@ -45,7 +45,7 @@ ${ld.map(ldTag).join('\n')}
 <body>
 <header class="pnav"><a class="logo-sm" href="/">ZIBNO</a><nav><a href="/">Home</a><a href="/guides/">Guides</a><a href="/about.html">About</a><a href="/#videos">Videos</a><a href="/#games">Games</a><a href="/#contact">Contact</a></nav></header>
 <main class="doc${cls ? ' ' + cls : ''}">${main}</main>
-<footer class="foot"><a href="/guides/">Guides</a><a href="/about.html">About</a><a href="/privacy.html">Privacy policy</a><span>© 2026 Zibno</span><p class="legal">Zibno is an independent creator and is not affiliated with or endorsed by Riot Games, Tencent, TiMi, Electronic Arts or Respawn. Game names and images belong to their owners. Some links on this site are affiliate links; I may earn a commission at no cost to you.</p></footer>
+<footer class="foot"><a href="/guides/">Guides</a><a href="/about.html">About</a><a href="/contact.html">Contact</a><a href="/privacy.html">Privacy policy</a><span>© 2026 Zibno</span><p class="legal">Zibno is an independent creator and is not affiliated with or endorsed by Riot Games, Tencent, TiMi, Electronic Arts or Respawn. Game names and images belong to their owners. Some links on this site are affiliate links; I may earn a commission at no cost to you.</p></footer>
 </body>
 </html>
 `;
@@ -130,17 +130,28 @@ writeFileSync('about.html', page('About Zibno', 'Zibno is an FPS mobile gaming c
 <p>Some links are affiliate links, such as the booster app I use for the China versions of games. I only link tools I use myself, and I mark affiliate links where they appear. For brand deals and collaborations, message me on <a href="https://t.me/zibnoofficial" target="_blank" rel="noopener">Telegram</a>, <a href="https://twitter.com/zibnoapex" target="_blank" rel="noopener">X</a>${EMAIL ? ` or by email at <a href="mailto:${EMAIL}">${EMAIL}</a>` : ''}.</p>
 <h2>Find me</h2>
 <ul><li><a href="https://www.youtube.com/@Zibnoofficial" target="_blank" rel="noopener">YouTube: @Zibnoofficial</a></li><li><a href="https://twitter.com/zibnoapex" target="_blank" rel="noopener">X: @zibnoapex</a></li><li><a href="https://t.me/zibnoofficial" target="_blank" rel="noopener">Telegram: t.me/zibnoofficial</a></li></ul>`));
+writeFileSync('contact.html', page('Contact Zibno', 'How to contact Zibno for brand deals, sponsored videos, early-access coverage, collaborations, corrections and questions about this site.', `
+<h1>Contact</h1>
+<p class="lede">Brand deals, sponsored videos, early-access coverage, collabs, or a correction to one of my guides: here is how to reach me.</p>
+<h2>Email</h2>
+<p>${EMAIL ? `<a href="mailto:${EMAIL}">${EMAIL}</a>. This is the best way for business enquiries. I usually reply within a few days.` : 'Message me on Telegram or X below.'}</p>
+<h2>Social</h2>
+<ul><li><a href="https://t.me/zibnoofficial" target="_blank" rel="noopener">Telegram: t.me/zibnoofficial</a></li><li><a href="https://twitter.com/zibnoapex" target="_blank" rel="noopener">X: @zibnoapex</a></li><li><a href="https://www.youtube.com/@Zibnoofficial" target="_blank" rel="noopener">YouTube: @Zibnoofficial</a></li></ul>
+<h2>Corrections</h2>
+<p>Games update often, and menus or numbers in a guide can change. If something in a guide is wrong or out of date, email me with the page link and what changed, and I will fix it.</p>
+<h2>Please note</h2>
+<ul><li>I do not sell accounts, APKs, top-ups or game items, and I will never ask for your password or login codes.</li><li>Anyone messaging you as "Zibno" from another account is not me. My only accounts are the ones listed on this page.</li></ul>`, { path: '/contact.html' }));
 writeFileSync('404.html', page('Page not found', 'This page does not exist.', '<h1>Page not found</h1><p class="lede">That page does not exist or has moved.</p><p><a href="/">Go to the homepage</a> or browse the <a href="/guides/">guides</a>.</p>'));
 
 mkdirSync('public', { recursive: true });
 const NL = String.fromCharCode(10);
 if (SITE_URL) {
   const newest = SORTED[0].updated || SORTED[0].date;
-  const urls = [['/', newest], ['/guides/', newest], ['/about.html'], ['/privacy.html'], ['/play/orbit-hop/'], ...GUIDES.map((g) => [`/guides/${g.slug}.html`, g.updated || g.date])];
+  const urls = [['/', newest], ['/guides/', newest], ['/about.html'], ['/contact.html'], ['/privacy.html'], ['/play/orbit-hop/'], ...GUIDES.map((g) => [`/guides/${g.slug}.html`, g.updated || g.date])];
   const body = urls.map(([u, d]) => `  <url><loc>${SITE_URL}${u}</loc>${d ? `<lastmod>${d}</lastmod>` : ''}</url>`).join(NL);
   writeFileSync('public/sitemap.xml', ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">', body, '</urlset>', ''].join(NL));
   writeFileSync('public/robots.txt', ['User-agent: *', 'Allow: /', `Sitemap: ${SITE_URL}/sitemap.xml`, ''].join(NL));
 } else {
   writeFileSync('public/robots.txt', ['User-agent: *', 'Allow: /', ''].join(NL));
 }
-console.log('wrote', GUIDES.length, 'guides + index + about + 404 + privacy');
+console.log('wrote', GUIDES.length, 'guides + index + about + contact + 404 + privacy', EMAIL ? 'with email' : 'NO EMAIL');

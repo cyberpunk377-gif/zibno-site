@@ -25,6 +25,7 @@ jobs:
       - run: bun tools/build-pages.js
         env:
           SITE_URL: https://zibnogaming.com
+          CONTACT_EMAIL: dvinegamer77@gmail.com
       - run: bunx vite build
       - uses: actions/upload-pages-artifact@v3
         with:
