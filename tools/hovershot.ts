@@ -1,0 +1,10 @@
+import { chromium } from '../../app/node_modules/playwright-core';
+const proc = Bun.spawn(['bunx', 'vite', 'preview', '--port', '5406', '--strictPort'], { cwd: import.meta.dir + '/..', stdout: 'ignore', stderr: 'ignore' });
+await Bun.sleep(2500);
+const b = await chromium.launch({ channel: 'chrome' });
+const p = await b.newPage({ viewport: { width: 1440, height: 810 } });
+await p.goto('http://localhost:5406/'); await Bun.sleep(4000);
+const r = (await p.locator('.game').nth(1).boundingBox())!;
+await p.mouse.move(r.x + r.width / 2, r.y + r.height / 2); await Bun.sleep(900);
+await p.screenshot({ path: process.argv[2], clip: { x: 900, y: 0, width: 540, height: 520 } });
+await b.close(); proc.kill();

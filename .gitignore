@@ -1,0 +1,4 @@
+node_modules/
+dist/
+# mockups, transcripts and source art: not part of the site
+pictures/
