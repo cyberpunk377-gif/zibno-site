@@ -12,7 +12,8 @@ const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, 
 const inline = (s) => esc(s).replace(/\[\[([a-z0-9-]+)\|([^\]]+)\]\]/g, (_, slug, text) => `<a href="/guides/${slug}.html">${text}</a>`);
 const plain = (s) => s.replace(/\[\[[a-z0-9-]+\|([^\]]+)\]\]/g, '$1');
 const slugify = (s) => plain(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-const block = ([t, v]) => {
+const block = ([t, v, x]) => {
+  if (t === 'img') return `<figure class="gimg"><img src="${esc(v)}" alt="${esc(x || '')}" loading="lazy">${x ? `<figcaption>${esc(x)}</figcaption>` : ''}</figure>`;
   if (t === 'h2') return `<h2 id="${slugify(v)}">${inline(v)}</h2>`;
   if (t === 'ul' || t === 'ol') return `<${t}>${v.map((i) => `<li>${inline(i)}</li>`).join('')}</${t}>`;
   if (t === 'dl') return `<dl>${v.map(([a, b]) => `<dt>${esc(a)}</dt><dd>${inline(b)}</dd>`).join('')}</dl>`;

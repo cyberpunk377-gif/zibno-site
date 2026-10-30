@@ -46,6 +46,9 @@ a { color: #0f7a2c; }
 .gart { font-size: 19px; }
 .gart .watch, .gart .hero-img { margin-bottom: 1.4em; }
 .gart > h2:first-of-type { margin-top: 1.4em; }
+.gimg { margin: 1.2em 0 1.6em; }
+.gimg img { display: block; max-width: 100%; height: auto; margin: 0 auto; border-radius: 12px; }
+.gimg figcaption { font-size: 15px; opacity: 0.65; text-align: center; margin-top: 6px; }
 .gart dl { display: grid; grid-template-columns: minmax(160px, 15rem) 1fr; gap: 0 28px; }
 .gart dl dt, .gart dl dd { padding: 12px 0; border-top: 1px solid rgba(11, 15, 12, 0.08); margin: 0; }
 .side { position: sticky; top: 24px; display: grid; gap: 18px; font-size: 15px; }
