@@ -102,67 +102,123 @@ for (const a of document.querySelectorAll('a[href^="#"]')) {
 let heroP = 0;
 ScrollTrigger.create({ trigger: '.hero', start: 'top top', end: 'bottom top', onUpdate: (s) => { heroP = s.progress; } });
 const nav = document.querySelector('.nav');
-const navLinks = [...nav.querySelectorAll('nav a')];
-for (const id of ['top', 'videos', 'about', 'games', 'contact']) {
-  ScrollTrigger.create({ trigger: '#' + id, start: 'top 45%', end: 'bottom 45%', onToggle: (s) => { if (s.isActive) navLinks.forEach((l) => l.classList.toggle('on', l.getAttribute('href') === '#' + id)); } });
+// ------------------------------------------------------------------ scroll story (Shopify Editions-style)
+// The stage pins for ~1.3 screens of scroll. Scroll position scrubs one timeline: HUD lines draw in, the two
+// Zibnos fly in from the sides, a spark builds between their hands while they glitch into a green outline,
+// the title rises, then the camera pushes through. Scrolling back plays it in reverse.
+const spark = { burst: 0 };
+{
+  const stage = document.querySelector('.story-stage');
+  // jagged "torn screen" edge, seeded so it is the same on every visit
+  let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const pts = ['0% 100%'];
+  for (let x = 0; x <= 100; x += 2 + rnd() * 3) pts.push(`${x.toFixed(1)}% ${(35 + rnd() * 55).toFixed(1)}%`);
+  pts.push('100% 60%', '100% 100%');
+  document.querySelector('.tear').style.clipPath = `polygon(${pts.join(',')})`;
+
+  for (const p of stage.querySelectorAll('.lines circle, .lines path')) { const l = p.getTotalLength(); p.style.strokeDasharray = l; p.style.strokeDashoffset = reduced ? 0 : l; }
+
+  if (!reduced) {
+    const outline = (k) => `drop-shadow(0 0 ${k * 2}px #2ee35b) drop-shadow(0 0 ${k * 10}px rgba(46,227,91,${k * 0.8})) grayscale(${k}) contrast(${1 + k * 0.6}) brightness(${1 + k * 0.5})`;
+    gsap.set('.char', { filter: outline(0) });
+    const m = innerWidth < 700 ? 0 : 1; // on phones the two are stacked, so they do not slide toward each other
+    gsap.timeline({ defaults: { ease: 'none' }, scrollTrigger: { trigger: '.story', start: 'top top', end: '+=130%', pin: true, scrub: 0.6, anticipatePin: 1 } })
+      .fromTo('.sky', { scale: 1.35, opacity: 0.2 }, { scale: 1.08, opacity: 1, duration: 3, ease: 'power2.out' }, 0)
+      .to('.lines circle, .lines path', { strokeDashoffset: 0, duration: 1.6, stagger: 0.12, ease: 'power2.inOut' }, 0)
+      .fromTo('.char-l', { xPercent: -120, yPercent: 30, rotate: -18 }, { xPercent: 8, yPercent: 0, rotate: 0, duration: 2.4, ease: 'power3.out' }, 0.6)
+      .fromTo('.char-r', { xPercent: 120, yPercent: -25, rotate: 16 }, { xPercent: -8, yPercent: 0, rotate: 0, duration: 2.4, ease: 'power3.out' }, 0.75)
+      .to('.lines', { opacity: 0.35, duration: 1 }, 2)
+      .to('.char-l', { xPercent: 8 + 14 * m, yPercent: -4, duration: 2 }, 3)
+      .to('.char-r', { xPercent: -8 - 14 * m, yPercent: 4, duration: 2 }, 3)
+      .to(spark, { burst: 1, duration: 2 }, 3)
+      .to('.char', { filter: outline(1), duration: 1.2 }, 3.6)
+      .from('.story-copy .kicker', { y: 30, opacity: 0, duration: 0.6 }, 3.4)
+      .from('.story-title span', { yPercent: 110, opacity: 0, stagger: 0.25, duration: 0.9, ease: 'power3.out' }, 3.6)
+      .from('.story-sub', { y: 20, opacity: 0, duration: 0.6 }, 4.2)
+      // camera push: everything scales toward you and the spark floods the frame
+      .to('.char-l', { xPercent: -60, scale: 1.5, opacity: 0, duration: 1.6, ease: 'power2.in' }, 5.4)
+      .to('.char-r', { xPercent: 60, scale: 1.5, opacity: 0, duration: 1.6, ease: 'power2.in' }, 5.4)
+      .to('.sky', { scale: 1.4, duration: 1.6, ease: 'power2.in' }, 5.4)
+      .to('.story-copy', { scale: 1.15, opacity: 0, duration: 1.2, ease: 'power2.in' }, 5.8)
+      .to(spark, { burst: 1.8, duration: 1.6, ease: 'power2.in' }, 5.4);
+  }
+
+  // spark field: particles orbit and stream out of the point between the two hands; burst drives the density
+  const cv = stage.querySelector('.sparks'), g = cv.getContext('2d');
+  let W = 0, H = 0, dpr = 1;
+  const fit = () => { dpr = Math.min(devicePixelRatio, 2); W = cv.clientWidth; H = cv.clientHeight; cv.width = W * dpr; cv.height = H * dpr; };
+  addEventListener('resize', fit); fit();
+  const parts = Array.from({ length: 420 }, (_, i) => ({ a: rnd() * Math.PI * 2, r: rnd(), s: 0.3 + rnd(), z: rnd(), k: i / 420 }));
+  let visible = false;
+  new IntersectionObserver(([e]) => { visible = e.isIntersecting; }).observe(stage);
+  const draw = (now) => {
+    requestAnimationFrame(draw);
+    if (!visible) return;
+    const t = now / 1000, b = reduced ? 0.6 : spark.burst;
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.clearRect(0, 0, W, H);
+    if (b < 0.01) return;
+    const cx = W * 0.5, cy = H * 0.42, R = Math.min(W, H) * (0.12 + b * 0.22);
+    g.globalCompositeOperation = 'lighter';
+    const halo = g.createRadialGradient(cx, cy, 0, cx, cy, R * 1.6);
+    halo.addColorStop(0, `rgba(200,255,215,${Math.min(1, b) * 0.55})`);
+    halo.addColorStop(0.35, `rgba(46,227,91,${Math.min(1, b) * 0.25})`);
+    halo.addColorStop(1, 'rgba(46,227,91,0)');
+    g.fillStyle = halo; g.fillRect(cx - R * 2, cy - R * 2, R * 4, R * 4);
+    for (const p of parts) {
+      if (p.k > b) continue; // more particles join as the burst grows
+      const a = p.a + t * p.s * 0.6, rr = R * (0.15 + p.r * 0.85) * (1 + Math.sin(t * 2 + p.a) * 0.08);
+      const x = cx + Math.cos(a) * rr, y = cy + Math.sin(a) * rr * 0.62;
+      const tw = 0.5 + 0.5 * Math.sin(t * 6 + p.a * 9);
+      g.fillStyle = p.z > 0.85 ? `rgba(255,255,255,${0.9 * tw})` : `rgba(120,255,160,${0.75 * tw})`;
+      const sz = (p.z > 0.85 ? 2.2 : 1.3) * (0.6 + tw);
+      g.fillRect(x - sz / 2, y - sz / 2, sz, sz);
+    }
+    // a four-point star at the meeting point
+    const st = R * 0.35 * Math.min(1, b);
+    g.strokeStyle = `rgba(255,255,255,${Math.min(1, b)})`; g.lineWidth = 1.5;
+    g.beginPath(); g.moveTo(cx - st, cy); g.lineTo(cx + st, cy); g.moveTo(cx, cy - st * 1.3); g.lineTo(cx, cy + st * 1.3); g.stroke();
+    g.globalCompositeOperation = 'source-over';
+  };
+  requestAnimationFrame(draw);
 }
 
-// ------------------------------------------------------------------ hero cards: build the 3D slab
-const LAYERS = 10;
-for (const g of document.querySelectorAll('.game')) {
-  const slab = document.createElement('div');
-  slab.className = 'slab';
-  for (let n = LAYERS; n >= 1; n--) { const ex = document.createElement('b'); ex.className = 'ex'; ex.style.setProperty('--n', n); slab.append(ex); }
-  slab.append(...g.children);
-  g.append(slab);
-  if (!reduced && matchMedia('(hover: hover) and (pointer: fine)').matches) {
-    g.addEventListener('pointermove', (e) => {
-      const r = g.getBoundingClientRect();
-      slab.style.setProperty('--ry', `${((e.clientX - r.left) / r.width - 0.5) * 24}deg`);
-      slab.style.setProperty('--rx', `${-((e.clientY - r.top) / r.height - 0.5) * 18}deg`);
-    });
-    g.addEventListener('pointerleave', () => { slab.style.setProperty('--ry', '0deg'); slab.style.setProperty('--rx', '0deg'); });
-  }
+// section highlights (nav tabs + chapter rail) are created after the story pin so their positions include its scroll length
+const navLinks = [...nav.querySelectorAll('nav a'), ...document.querySelectorAll('.rail a')];
+for (const id of ['top', 'guides', 'videos', 'games', 'contact', 'about']) {
+  ScrollTrigger.create({ trigger: '#' + id, start: 'top 45%', end: 'bottom 45%', onToggle: (s) => { if (s.isActive) navLinks.forEach((l) => l.classList.toggle('on', l.getAttribute('href') === '#' + id)); } });
+}
+// the chapter rail only shows once the story is behind you
+ScrollTrigger.create({ trigger: '#guides', start: 'top 60%', endTrigger: 'html', end: 'bottom bottom', toggleClass: { targets: '.rail', className: 'show' } });
+
+// guide cards deal in like a fanned hand of cards
+if (!reduced) {
+  ScrollTrigger.batch('.gc', { start: 'top 88%', once: true, onEnter: (els) => gsap.from(els, {
+    y: 120, rotate: (i) => (i % 3 - 1) * 9, scale: 0.9, opacity: 0, transformOrigin: '50% 120%', stagger: 0.09, duration: 0.9, ease: 'power3.out', clearProps: 'transform,opacity',
+  }) });
 }
 
 // ------------------------------------------------------------------ entrance: one orchestrated reveal
 if (!reduced) {
   gsap.timeline({ defaults: { ease: 'power3.out' } })
     .from('.nav', { y: -30, opacity: 0, duration: 0.8, clearProps: 'transform' }) // a leftover transform would trap the phone menu inside the bar
-    .from('.kicker', { x: -30, opacity: 0, duration: 0.7 }, 0.15)
-    .from('.logo span', { x: -60, opacity: 0, skewX: 12, duration: 1 }, 0.2)
-    .from('.motto', { x: -30, opacity: 0, duration: 0.7 }, 0.45)
-    .from('.yt', { y: 24, opacity: 0, duration: 0.7 }, 0.6)
-    .from('.panel-wrap', { x: 120, opacity: 0, duration: 1.2, clearProps: 'transform' }, 0.35)
-    .from('.game', { x: 60, opacity: 0, stagger: 0.12, duration: 0.7, clearProps: 'transform' }, 0.7);
+    .from('.wordmark', { y: 60, opacity: 0, duration: 1.4 }, 0)
+    .from('.hud-strip', { opacity: 0, duration: 0.6 }, 0.15)
+    .from('.kicker', { x: -30, opacity: 0, duration: 0.7 }, 0.2)
+    .from('.headline span', { y: 70, opacity: 0, skewY: 6, stagger: 0.08, duration: 0.9 }, 0.25)
+    .from('.hero-lede, .cta, .stats', { y: 24, opacity: 0, stagger: 0.1, duration: 0.7 }, 0.6)
+    .from('.feed', { x: 80, opacity: 0, duration: 1.1, clearProps: 'transform' }, 0.35)
+    .from('.chip', { y: 30, opacity: 0, stagger: 0.1, duration: 0.6, clearProps: 'transform' }, 0.8);
 }
 
-// ------------------------------------------------------------------ ZIBNO title: the gradient follows the mouse
-// The black→green split slides to the cursor and a green glow sits under it; leaving eases back to rest.
-{
-  const word = document.querySelector('.logo span');
-  const cur = { s: 0, g: 0, x: 50, y: 50 }, want = { ...cur };
-  let raf = 0;
-  const tick = () => {
-    for (const k in cur) cur[k] += (want[k] - cur[k]) * 0.12;
-    word.style.setProperty('--s', cur.s.toFixed(2) + '%');
-    word.style.setProperty('--g', cur.g.toFixed(3));
-    word.style.setProperty('--mx', cur.x.toFixed(2) + '%');
-    word.style.setProperty('--my', cur.y.toFixed(2) + '%');
-    const done = Object.keys(cur).every((k) => Math.abs(want[k] - cur[k]) < 0.05);
-    raf = done ? 0 : requestAnimationFrame(tick);
-  };
-  const go = () => { if (!raf) raf = requestAnimationFrame(tick); };
-  word.addEventListener('pointermove', (e) => {
-    const r = word.getBoundingClientRect();
-    want.x = ((e.clientX - r.left) / r.width) * 100;
-    want.y = ((e.clientY - r.top) / r.height) * 100;
-    want.s = want.x - 58; // the dark→green edge (58% at rest) lands on the cursor
-    want.g = 1;
-    go();
-  });
-  word.addEventListener('pointerleave', () => { Object.assign(want, { s: 0, g: 0 }); go(); });
-}
+// ------------------------------------------------------------------ HUD clocks: broadcast-style timecode (HH:MM:SS:FF)
+const clocks = [...document.querySelectorAll('.clock, .tc')];
+const t0 = performance.now();
+const timecode = () => {
+  const f = Math.floor((performance.now() - t0) / (1000 / 30));
+  const p = (n) => String(n).padStart(2, '0');
+  return `${p(Math.floor(f / 108000))}:${p(Math.floor(f / 1800) % 60)}:${p(Math.floor(f / 30) % 60)}:${p(f % 30)}`;
+};
 
 // ------------------------------------------------------------------ pointer + tilt
 const look = { x: 0, y: 0 }, lookT = { x: 0, y: 0 };
@@ -173,9 +229,6 @@ addEventListener('deviceorientation', (e) => {
   lookT.y = Math.max(-0.5, Math.min(0.5, (e.beta - 45) / 60));
 });
 
-const copy = document.querySelector('.hero-copy');
-const panel = document.querySelector('.games-panel');
-const pl = { x: 0, y: 0 }; // panel's own copy of the pointer, frozen while a card is hovered
 const clock = new THREE.Clock();
 renderer.setAnimationLoop(() => {
   const dt = Math.min(clock.getDelta(), 1 / 20), t = clock.elapsedTime;
@@ -186,12 +239,9 @@ renderer.setAnimationLoop(() => {
   // scroll dollies into the set; idle drift keeps it alive when nobody touches anything
   mat.uniforms.sway.value.set(look.x * 1.4 + Math.sin(t * 0.35) * 0.25 * idle, -look.y * 0.9 + Math.sin(t * 0.27) * 0.12 * idle + p * 1.2);
   mat.uniforms.zoom.value = 1 + smooth(0, 1, p) * 0.18;
-  nav.classList.toggle('solid', p > 0.6);
-  copy.style.transform = `translate3d(${look.x * -14}px, ${p * -120 + look.y * -8}px, 0)`;
-  copy.style.opacity = String(1 - smooth(0.25, 0.7, p));
-  if (!reduced && innerWidth / innerHeight >= 1 && innerWidth > 700) {
-    panel.style.transform = `rotateY(${-20 + pl.x * 10 - p * 18}deg) rotateZ(-4deg) rotateX(${4 - pl.y * 8}deg) translate3d(${p * 80}px, ${p * -60}px, 0)`;
-  }
+  nav.classList.toggle('solid', scrollY > 40);
+  const tc = timecode();
+  for (const c of clocks) c.textContent = tc;
   renderer.render(scene, cam);
 });
 
@@ -290,13 +340,15 @@ function renderVideos(game, animate = true) {
   ScrollTrigger.refresh();
 }
 tabs.forEach((t) => t.addEventListener('click', () => renderVideos(t.dataset.game)));
-// the game cards in the hero jump straight to that game's videos
-for (const c of document.querySelectorAll('.game[data-game]')) c.addEventListener('click', () => renderVideos(c.dataset.game));
+// each tab shows how many videos it holds, like the nav counts
+for (const t of tabs) t.insertAdjacentHTML('beforeend', `<sup>${t.dataset.game === 'all' ? VIDEOS.filter((v) => v[4]).length : VIDEOS.filter((v) => v[1] === t.dataset.game).length}</sup>`);
+// the game chips under the hero feed jump straight to that game's videos
+for (const c of document.querySelectorAll('.chip[data-game]')) c.addEventListener('click', () => renderVideos(c.dataset.game));
 
 // ------------------------------------------------------------------ 3D tilt on every card
 // The card leans toward the pointer and a soft light follows it across the surface.
 const canHover = matchMedia('(hover: hover) and (pointer: fine)').matches;
-let hot = 0; // cards currently under the pointer; the hero panel stops following the mouse while > 0
+let hot = 0; // cards currently under the pointer
 function bindTilt(els) {
   for (const el of els) {
     if (el.dataset.tiltBound) continue;
@@ -332,7 +384,7 @@ function bindTilt(els) {
     });
   }
 }
-bindTilt(document.querySelectorAll('.links a, .stats div, .gcard'));
+bindTilt(document.querySelectorAll('.links a, .gcard'));
 renderVideos('all', false);
 
 // ------------------------------------------------------------------ games: the phone loops a trailer while on screen

@@ -1,7 +1,7 @@
 // Writes static HTML for the guides and the privacy policy (real text in the HTML, for search and AdSense).
 //   bun tools/build-pages.js
 import { GUIDES } from '../content/guides.js';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 
 // SITE_URL=https://yourdomain.com bun tools/build-pages.js  -> also writes sitemap.xml + robots.txt with the real address
 const SITE_URL = (process.env.SITE_URL || '').replace(/\/$/, '');
@@ -30,7 +30,7 @@ const page = (title, desc, main, { path = '', image = '/hero/plate.jpg', type = 
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#EEF5EF">
+<meta name="theme-color" content="#07090a">
 <title>${esc(title)} | Zibno</title>
 <meta name="description" content="${esc(desc)}">
 ${SITE_URL && path ? `<link rel="canonical" href="${abs(path)}">\n<meta property="og:url" content="${abs(path)}">\n` : ''}<meta property="og:site_name" content="Zibno">
@@ -45,9 +45,9 @@ ${SITE_URL && path ? `<link rel="canonical" href="${abs(path)}">\n<meta property
 ${ld.map(ldTag).join('\n')}
 </head>
 <body>
-<header class="pnav"><a class="logo-sm" href="/">ZIBNO</a><nav><a href="/">Home</a><a href="/guides/">Guides</a><a href="/about.html">About</a><a href="/#videos">Videos</a><a href="/#games">Games</a><a href="/#contact">Contact</a></nav></header>
+<header class="pnav"><a class="logo-sm" href="/">ZIBNO</a><nav><a href="/">Home</a><a href="/guides/">Guides</a><a href="/#videos">Videos</a><a href="/#games">Games</a><a href="/contact.html">Contact</a><a href="/about.html">About</a></nav></header>
 <main class="doc${cls ? ' ' + cls : ''}">${main}</main>
-<footer class="foot"><a href="/guides/">Guides</a><a href="/about.html">About</a><a href="/contact.html">Contact</a><a href="/privacy.html">Privacy policy</a><span>© 2026 Zibno</span><p class="legal">Zibno is an independent creator and is not affiliated with or endorsed by Riot Games, Tencent, TiMi, Electronic Arts or Respawn. Game names and images belong to their owners. Some links on this site are affiliate links; I may earn a commission at no cost to you.</p></footer>
+<footer class="foot"><a href="/guides/">Guides</a><a href="/contact.html">Contact</a><a href="/privacy.html">Privacy policy</a><a href="/about.html">About</a><span>© 2026 Zibno</span><p class="legal">Zibno is an independent creator and is not affiliated with or endorsed by Riot Games, Tencent, TiMi, Electronic Arts or Respawn. Game names and images belong to their owners. Some links on this site are affiliate links; I may earn a commission at no cost to you.</p></footer>
 </body>
 </html>
 `;
@@ -58,6 +58,15 @@ const longDate = (d) => new Date(d + 'T12:00:00Z').toLocaleDateString('en-GB', {
 const thumb = (g) => (g.video ? `/videos/${g.video}.jpg` : g.image);
 const card = (g) => `<a href="/guides/${g.slug}.html"><img src="${thumb(g)}" alt="" loading="lazy" width="640" height="360"><span class="tag">${g.news ? 'News' : esc(g.game)}</span><b>${esc(g.title)}</b></a>`;
 const SORTED = [...GUIDES].sort((a, b) => (b.updated || b.date).localeCompare(a.updated || a.date));
+
+// homepage: the six newest guides as numbered cards, plus the guide count in the nav and stats row
+{
+  const homeCard = (g, i) => `<a class="gc" href="/guides/${g.slug}.html"><span class="no">No. ${String(SORTED.length - i).padStart(3, '0')}</span><img src="${thumb(g)}" alt="" loading="lazy" width="640" height="360"><span class="tag">${g.news ? 'News' : esc(g.game)}</span><b>${esc(g.title)}</b><em>${longDate(g.updated || g.date)}</em></a>`;
+  const home = readFileSync('index.html', 'utf8')
+    .replace(/<!--guides:latest-->[\s\S]*?<!--\/guides:latest-->/, `<!--guides:latest-->${SORTED.slice(0, 6).map(homeCard).join('')}<!--/guides:latest-->`)
+    .replace(/<!--guides:count-->[\s\S]*?<!--\/guides:count-->/g, `<!--guides:count-->${GUIDES.length}<!--/guides:count-->`);
+  writeFileSync('index.html', home);
+}
 
 mkdirSync('guides', { recursive: true });
 for (const g of GUIDES) {

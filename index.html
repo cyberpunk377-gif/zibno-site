@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#EEF5EF">
+<meta name="theme-color" content="#07090a">
 <title>Zibno: gaming videos and games</title>
 <meta name="description" content="Zibno Official: gaming guides, tips and entertainment. Game, learn, improve, together.">
 <link rel="canonical" href="https://zibnogaming.com/">
@@ -23,11 +23,11 @@
   <a class="logo-sm" href="#top" aria-label="Zibno home">ZIBNO</a>
   <nav id="site-menu">
     <a class="on" href="#top">Home</a>
-    <a href="/guides/">Guides</a>
-    <a href="#about">About</a>
-    <a href="#videos">Videos</a>
-    <a href="#games">Games</a>
+    <a href="#guides">Guides<sup id="n-guides"><!--guides:count-->21<!--/guides:count--></sup></a>
+    <a href="#videos">Videos<sup>682</sup></a>
+    <a href="#games">Games<sup>1</sup></a>
     <a href="#contact">Contact</a>
+    <a href="#about">About</a>
   </nav>
   <div class="social">
     <a href="https://www.youtube.com/@Zibnoofficial" target="_blank" rel="noopener" aria-label="YouTube"><svg viewBox="0 0 24 24"><path d="M23 7.2a3 3 0 0 0-2.1-2.1C19 4.6 12 4.6 12 4.6s-7 0-8.9.5A3 3 0 0 0 1 7.2 31 31 0 0 0 .5 12 31 31 0 0 0 1 16.8a3 3 0 0 0 2.1 2.1c1.9.5 8.9.5 8.9.5s7 0 8.9-.5a3 3 0 0 0 2.1-2.1 31 31 0 0 0 .5-4.8 31 31 0 0 0-.5-4.8ZM9.7 15.1V8.9l5.8 3.1-5.8 3.1Z"/></svg></a>
@@ -39,45 +39,102 @@
 
 <main>
   <section id="top" class="hero">
-    <canvas id="scene" aria-hidden="true"></canvas>
-    <div class="hero-copy">
-      <p class="kicker">GAMING &nbsp;•&nbsp; GUIDE &nbsp;•&nbsp; TIPS &nbsp;•&nbsp; ENTERTAINMENT</p>
-      <h1 class="logo" aria-label="Zibno"><span>ZIBNO</span></h1>
-      <p class="motto">GAME &nbsp;•&nbsp; LEARN &nbsp;•&nbsp; IMPROVE &nbsp;•&nbsp; TOGETHER</p>
-      <a class="yt" href="https://www.youtube.com/@Zibnoofficial" target="_blank" rel="noopener">
-        <svg viewBox="0 0 28 20" aria-hidden="true"><rect width="28" height="20" rx="5" fill="#fff"/><path d="M11 5.5v9l8-4.5-8-4.5Z" fill="#0d5d24"/></svg>
-        <span>WATCH ON YOUTUBE</span>
-        <svg class="chev" viewBox="0 0 10 16" aria-hidden="true"><path d="M2 2l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-      </a>
+    <p class="wordmark" aria-hidden="true">ZIBNO</p>
+    <div class="hud-strip" aria-hidden="true">
+      <span><i class="dot"></i> LIVE &nbsp;/&nbsp; CH-01 ZIBNO OFFICIAL</span>
+      <span class="hide-s">MOBILE FPS &nbsp;·&nbsp; GUIDES &nbsp;·&nbsp; EARLY ACCESS</span>
+      <span class="clock">00:00:00:00</span>
     </div>
 
-    <div class="panel-wrap">
-      <div class="games-panel">
-        <a class="game" href="#videos" data-game="valorant" style="--img:url(/hero/card_valorant.jpg)"><b class="plate"></b><span>VALORANT</span><i></i></a>
-        <a class="game" href="#videos" data-game="delta" style="--img:url(/hero/card_deltaforce.jpg)"><b class="plate"></b><span>DELTA FORCE</span><i></i></a>
-        <a class="game" href="#videos" data-game="apex" style="--img:url(/hero/card_apex.jpg)"><b class="plate"></b><span>APEX LEGENDS MOBILE</span><i></i></a>
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <p class="kicker">GAMING &nbsp;•&nbsp; GUIDE &nbsp;•&nbsp; TIPS &nbsp;•&nbsp; ENTERTAINMENT</p>
+        <h1 class="headline"><span>Game.</span> <span>Learn.</span> <span>Improve.</span> <span class="hl">Together.</span></h1>
+        <p class="hero-lede">Early-access download guides and Chinese-to-English settings for Valorant Mobile, Delta Force and the next big mobile shooter.</p>
+        <div class="cta">
+          <a class="btn btn-yt" href="https://www.youtube.com/@Zibnoofficial" target="_blank" rel="noopener">
+            <svg viewBox="0 0 28 20" aria-hidden="true"><rect width="28" height="20" rx="5" fill="#07090a"/><path d="M11 5.5v9l8-4.5-8-4.5Z" fill="#2ee35b"/></svg>
+            Watch on YouTube
+          </a>
+          <a class="btn btn-ghost" href="/guides/">Read the guides</a>
+        </div>
+        <dl class="stats">
+          <div><dt>Subscribers</dt><dd>6.9K</dd></div>
+          <div><dt>Videos</dt><dd>682</dd></div>
+          <div><dt>Top video</dt><dd>91K</dd></div>
+          <div><dt>Guides</dt><dd><!--guides:count-->21<!--/guides:count--></dd></div>
+        </dl>
       </div>
+
+      <figure class="feed">
+        <div class="feed-frame">
+          <canvas id="scene" aria-hidden="true"></canvas>
+          <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+          <span class="rec"><i class="dot"></i> REC</span>
+          <span class="feed-tag">FEED 01 · ZIBNO</span>
+          <span class="tc">00:00:00:00</span>
+        </div>
+        <figcaption class="game-chips">
+          <a class="chip" href="#videos" data-game="valorant" style="--img:url(/hero/card_valorant.jpg)"><span>Valorant</span></a>
+          <a class="chip" href="#videos" data-game="delta" style="--img:url(/hero/card_deltaforce.jpg)"><span>Delta Force</span></a>
+          <a class="chip" href="#videos" data-game="apex" style="--img:url(/hero/card_apex.jpg)"><span>Apex Mobile</span></a>
+        </figcaption>
+      </figure>
+    </div>
+
+    <div class="ticker" aria-hidden="true"><div class="ticker-track">
+      <span>VALORANT MOBILE</span><span>DELTA FORCE</span><span>HIGH ENERGY HEROES</span><span>APEX LEGENDS MOBILE</span><span>ACE FORCE 2</span><span>SETTINGS IN ENGLISH</span><span>EARLY ACCESS</span>
+      <span>VALORANT MOBILE</span><span>DELTA FORCE</span><span>HIGH ENERGY HEROES</span><span>APEX LEGENDS MOBILE</span><span>ACE FORCE 2</span><span>SETTINGS IN ENGLISH</span><span>EARLY ACCESS</span>
+    </div></div>
+  </section>
+
+  <!-- scroll story: pinned while you scroll; the characters fly in, the spark builds, the camera pushes through -->
+  <section id="story" class="story" aria-label="The Zibno Edition">
+    <div class="story-stage">
+      <img class="sky" src="/chars/zibno_sky.webp" alt="" width="1672" height="941">
+      <svg class="lines" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <circle cx="800" cy="450" r="330" /><circle cx="800" cy="450" r="560" />
+        <path d="M0 0 L1600 900 M1600 0 L0 900 M800 0 V900 M0 450 H1600" />
+        <path d="M560 210 h480 v480 h-480 Z" />
+        <path d="M150 160 h90 M195 115 v90 M1360 740 h90 M1405 695 v90" />
+      </svg>
+      <canvas class="sparks" aria-hidden="true"></canvas>
+      <img class="char char-l" src="/chars/zibno_reach.webp" alt="Zibno mascot floating with a game controller" width="1254" height="1254">
+      <img class="char char-r" src="/chars/zibno_leap.webp" alt="Zibno mascot leaping with a glowing phone" width="1254" height="1254">
+      <div class="story-copy">
+        <p class="kicker">CHAPTER 00 &nbsp;/&nbsp; THE ZIBNO EDITION</p>
+        <h2 class="story-title"><span>Play it</span> <span class="hl">first.</span></h2>
+        <p class="story-sub">New shooters hit China and closed betas months early. I get in, translate every menu and show you the way in.</p>
+      </div>
+      <div class="tear" aria-hidden="true"></div>
     </div>
   </section>
 
-  <section id="about" class="block about">
-    <h2>About Zibno</h2>
-    <div class="about-grid">
-      <div class="about-text">
-        <p>I'm Zibno, an FPS gaming creator focused on mobile shooters: Valorant Mobile, Delta Force, Apex Legends Mobile, High Energy Heroes and whatever drops next.</p>
-        <p>I'm known for getting into games early. When a shooter launches first in China or in a closed beta, I show you how to download it, then translate every setting from Chinese to English and explain what it does, so you can play it properly from day one.</p>
-        <p>Around that I make settings guides, gyro and handcam tips, and quick Shorts. Game, learn, improve, together. <a href="/about.html">More about me and how I make guides</a>.</p>
-      </div>
-      <dl class="stats">
-        <div><dt>Subscribers</dt><dd>6.9K</dd></div>
-        <div><dt>Videos</dt><dd>682</dd></div>
-        <div><dt>Most viewed video</dt><dd>91K</dd></div>
-      </dl>
+  <nav class="rail" aria-label="Sections">
+    <a href="#guides"><b>Guides</b><i>01</i></a>
+    <a href="#videos"><b>Videos</b><i>02</i></a>
+    <a href="#games"><b>Games</b><i>03</i></a>
+    <a href="#contact"><b>Contact</b><i>04</i></a>
+    <a href="#about"><b>About</b><i>05</i></a>
+  </nav>
+
+  <section id="guides" class="block">
+    <header class="sec-head">
+      <span class="idx">01 /</span>
+      <h2>Latest guides</h2>
+      <a class="sec-link" href="/guides/">All guides →</a>
+    </header>
+    <div class="glist-home">
+<!--guides:latest--><a class="gc" href="/guides/valorant-mobile-lobby-settings-english.html"><span class="no">No. 021</span><img src="/videos/oAdW4eaiY_c.jpg" alt="" loading="lazy" width="640" height="360"><span class="tag">Valorant Mobile</span><b>Valorant Mobile lobby and settings in English</b><em>29 October 2026</em></a><a class="gc" href="/guides/valorant-mobile-china-pre-register.html"><span class="no">No. 020</span><img src="/videos/rbHkC2xcJSY.jpg" alt="" loading="lazy" width="640" height="360"><span class="tag">Valorant Mobile</span><b>How to download and play Valorant Mobile China from outside China</b><em>29 October 2026</em></a><a class="gc" href="/guides/high-energy-heroes-settings-english.html"><span class="no">No. 019</span><img src="/videos/49PDoCBdHwA.jpg" alt="" loading="lazy" width="640" height="360"><span class="tag">High Energy Heroes</span><b>High Energy Heroes settings in English (Apex Mobile 2.0)</b><em>29 October 2026</em></a><a class="gc" href="/guides/valorant-mobile-global-release-status.html"><span class="no">No. 018</span><img src="/videos/t7TXVJ8rjco.jpg" alt="" loading="lazy" width="640" height="360"><span class="tag">News</span><b>Valorant Mobile global release: what we know (October 2026)</b><em>29 October 2026</em></a><a class="gc" href="/guides/delta-force-season-reorientation-guide.html"><span class="no">No. 017</span><img src="/videos/qsrHwNoqG6c.jpg" alt="" loading="lazy" width="640" height="360"><span class="tag">News</span><b>Delta Force Season 11 &quot;Reorientation&quot;: everything new (Rover, Layali Grove 2.0, The Mog)</b><em>29 October 2026</em></a><a class="gc" href="/guides/delta-force-polaris-patrol-guide.html"><span class="no">No. 016</span><img src="/hero/card_deltaforce.jpg" alt="" loading="lazy" width="640" height="360"><span class="tag">Delta Force</span><b>Delta Force Polaris Patrol guide: how to play as Desmoulins and get the rewards</b><em>29 October 2026</em></a><!--/guides:latest-->
     </div>
   </section>
 
   <section id="videos" class="block">
-    <h2 id="vids-title">Most watched</h2>
+    <header class="sec-head">
+      <span class="idx">02 /</span>
+      <h2 id="vids-title">Most watched</h2>
+      <a class="sec-link" href="https://www.youtube.com/@Zibnoofficial/videos" target="_blank" rel="noopener">All 682 videos →</a>
+    </header>
     <p class="lede">The guides people keep coming back to: settings, early access and the tricks that win fights.</p>
     <div class="filters" role="tablist" aria-label="Filter videos by game">
       <button role="tab" data-game="all" aria-selected="true">All</button>
@@ -87,19 +144,21 @@
     </div>
     <div class="vids" id="vids">
     </div>
-    <a class="more" href="https://www.youtube.com/@Zibnoofficial/videos" target="_blank" rel="noopener">See all 682 videos on YouTube</a>
   </section>
 
   <section id="games" class="block games">
+    <header class="sec-head">
+      <span class="idx">03 /</span>
+      <h2>My games</h2>
+    </header>
     <div class="games-grid">
       <div class="games-text">
-        <h2>My games</h2>
         <p class="lede">Small games I build myself, in code, from scratch. Play them right here, free, no download.</p>
         <article class="gcard">
           <span class="tag">PLAYABLE NOW</span>
           <h3>Orbit Hop</h3>
           <p>Tap to jump from planet to planet. Gravity bends your flight, so time it right, grab the stars and unlock five astronaut skins.</p>
-          <a class="play-btn" href="/play/orbit-hop/index.html" target="_blank" rel="noopener">Play Orbit Hop</a>
+          <a class="btn btn-yt play-btn" href="/play/orbit-hop/index.html" target="_blank" rel="noopener">Play Orbit Hop</a>
         </article>
         <article class="gcard soon">
           <span class="tag">COMING SOON</span>
@@ -117,18 +176,40 @@
   </section>
 
   <section id="contact" class="block contact">
-    <h2>Let's talk</h2>
+    <header class="sec-head">
+      <span class="idx">04 /</span>
+      <h2>Let's talk</h2>
+    </header>
     <p class="lede">Brand deals, sponsored videos, early-access coverage and collabs. Message me on any of these.</p>
     <div class="links">
-      <a href="https://www.youtube.com/@Zibnoofficial" target="_blank" rel="noopener"><b>YouTube</b><span>@Zibnoofficial</span></a>
-      <a href="https://twitter.com/zibnoapex" target="_blank" rel="noopener"><b>X (Twitter)</b><span>@zibnoapex</span></a>
-      <a href="https://t.me/zibnoofficial" target="_blank" rel="noopener"><b>Telegram</b><span>t.me/zibnoofficial</span></a>
-      <a href="mailto:dvinegamer77@gmail.com"><b>Email</b><span>dvinegamer77@gmail.com</span></a>
+      <a href="https://www.youtube.com/@Zibnoofficial" target="_blank" rel="noopener"><small>YT</small><b>YouTube</b><span>@Zibnoofficial</span></a>
+      <a href="https://twitter.com/zibnoapex" target="_blank" rel="noopener"><small>X</small><b>X (Twitter)</b><span>@zibnoapex</span></a>
+      <a href="https://t.me/zibnoofficial" target="_blank" rel="noopener"><small>TG</small><b>Telegram</b><span>t.me/zibnoofficial</span></a>
+      <a href="mailto:dvinegamer77@gmail.com"><small>@</small><b>Email</b><span>dvinegamer77@gmail.com</span></a>
+    </div>
+  </section>
+
+  <section id="about" class="block about">
+    <header class="sec-head">
+      <span class="idx">05 /</span>
+      <h2>About Zibno</h2>
+    </header>
+    <div class="about-grid">
+      <div class="about-text">
+        <p>I'm Zibno, an FPS gaming creator focused on mobile shooters: Valorant Mobile, Delta Force, Apex Legends Mobile, High Energy Heroes and whatever drops next.</p>
+        <p>I'm known for getting into games early. When a shooter launches first in China or in a closed beta, I show you how to download it, then translate every setting from Chinese to English and explain what it does, so you can play it properly from day one.</p>
+        <p>Around that I make settings guides, gyro and handcam tips, and quick Shorts. Game, learn, improve, together. <a href="/about.html">More about me and how I make guides</a>.</p>
+      </div>
+      <ul class="facts">
+        <li><b>Early access</b><span>Download steps for China and beta releases, the day they drop.</span></li>
+        <li><b>Settings in English</b><span>Every menu translated and explained, screen by screen.</span></li>
+        <li><b>Played on my phone</b><span>Nothing I haven't checked myself.</span></li>
+      </ul>
     </div>
   </section>
 </main>
 
-<footer class="foot"><a href="/guides/">Guides</a><a href="/about.html">About</a><a href="/contact.html">Contact</a><a href="/privacy.html">Privacy policy</a><span>© 2026 Zibno</span><p class="legal">Zibno is an independent creator and is not affiliated with or endorsed by Riot Games, Tencent, TiMi, Electronic Arts or Respawn. Game names and images belong to their owners. Some links on this site are affiliate links; I may earn a commission at no cost to you.</p></footer>
+<footer class="foot"><a href="/guides/">Guides</a><a href="/contact.html">Contact</a><a href="/privacy.html">Privacy policy</a><a href="/about.html">About</a><span>© 2026 Zibno</span><p class="legal">Zibno is an independent creator and is not affiliated with or endorsed by Riot Games, Tencent, TiMi, Electronic Arts or Respawn. Game names and images belong to their owners. Some links on this site are affiliate links; I may earn a commission at no cost to you.</p></footer>
 <canvas id="tracer" aria-hidden="true"></canvas>
 <script type="module" src="/src/main.js"></script>
 </body>
