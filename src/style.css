@@ -200,6 +200,14 @@ a { color: inherit; }
   background: var(--green); box-shadow: 0 0 0 6px rgba(46, 227, 91, 0.25), 0 0 40px rgba(46, 227, 91, 0.7); transition: scale 0.2s; }
 .phone:hover .phone-play { scale: 1.08; }
 .phone-play svg { width: 38px; height: 38px; fill: var(--bg); margin-left: 5px; }
+/* two phones side by side: Orbit Hop leans one way, Voltlane the other */
+.phones { display: flex; justify-self: center; align-items: center; gap: clamp(14px, 2vw, 30px); }
+.phones .phone { width: max(170px, min(270px, 19vw, 36vh)); border-radius: 36px; padding: 10px; }
+.phones .phone-screen { border-radius: 27px; }
+.phones .phone-play { width: 64px; height: 64px; margin: -32px 0 0 -32px; }
+.phones .phone-play svg { width: 28px; height: 28px; }
+.phones .phone-2 { transform: perspective(1400px) rotateY(14deg) rotateX(4deg) translateY(28px); }
+.phones .phone-2:hover { transform: translateY(28px); }
 
 /* contact */
 .links { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
@@ -246,6 +254,9 @@ a { color: inherit; }
 @media (max-width: 700px) {
   .about-grid, .links, .games-grid, .vids, .glist-home { grid-template-columns: 1fr; }
   .phone { width: 64vw; min-width: 0; transform: none; }
+  .phones { width: 100%; justify-content: center; }
+  .phones .phone, .phones .phone-2 { width: 42vw; min-width: 0; transform: none; }
+  .phones .phone-2 { transform: translateY(18px); }
   .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .stats div:nth-child(3) { border-left: 0; }
   .stats div:nth-child(n + 3) { border-top: 1px solid var(--line); }

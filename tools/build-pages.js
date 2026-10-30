@@ -160,7 +160,7 @@ mkdirSync('public', { recursive: true });
 const NL = String.fromCharCode(10);
 if (SITE_URL) {
   const newest = SORTED[0].updated || SORTED[0].date;
-  const urls = [['/', newest], ['/guides/', newest], ['/about.html'], ['/contact.html'], ['/privacy.html'], ['/play/orbit-hop/'], ...GUIDES.map((g) => [`/guides/${g.slug}.html`, g.updated || g.date])];
+  const urls = [['/', newest], ['/guides/', newest], ['/about.html'], ['/contact.html'], ['/privacy.html'], ['/play/orbit-hop/'], ['/play/voltlane/'], ...GUIDES.map((g) => [`/guides/${g.slug}.html`, g.updated || g.date])];
   const body = urls.map(([u, d]) => `  <url><loc>${SITE_URL}${u}</loc>${d ? `<lastmod>${d}</lastmod>` : ''}</url>`).join(NL);
   writeFileSync('public/sitemap.xml', ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">', body, '</urlset>', ''].join(NL));
   writeFileSync('public/robots.txt', ['User-agent: *', 'Allow: /', `Sitemap: ${SITE_URL}/sitemap.xml`, ''].join(NL));

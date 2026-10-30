@@ -389,8 +389,9 @@ renderVideos('all', false);
 
 // ------------------------------------------------------------------ games: the phone loops a trailer while on screen
 // Playing happens on the game's own page (new tab), so nothing on this page can interrupt a run.
-const trailer = document.querySelector('.phone video');
-new IntersectionObserver(([e]) => {
-  if (e.isIntersecting && !matchMedia('(prefers-reduced-motion: reduce)').matches) trailer.play().catch(() => {});
-  else trailer.pause();
-}, { threshold: 0.2 }).observe(trailer);
+for (const trailer of document.querySelectorAll('.phone video')) {
+  new IntersectionObserver(([e]) => {
+    if (e.isIntersecting && !matchMedia('(prefers-reduced-motion: reduce)').matches) trailer.play().catch(() => {});
+    else trailer.pause();
+  }, { threshold: 0.2 }).observe(trailer);
+}
