@@ -6,7 +6,6 @@ const W = 720;               // logical width; height follows the screen shape
 const PR = 16;               // player radius
 const LAUNCH = 760;          // launch speed px/s
 const GRAV = 1.4e7;          // planet pull strength (scaled by planet size)
-const SAVE_KEY = 'orbithop_v1';
 
 const rand = (a, b) => a + Math.random() * (b - a);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -17,7 +16,7 @@ const lerp = (a, b, t) => a + (b - a) * t;
 const YT = (typeof ytgame !== 'undefined' && ytgame.IN_PLAYABLES_ENV) ? ytgame : null;
 const yt = {
   call(fn) { if (!YT) return undefined; try { return fn(YT); } catch (e) { return undefined; } },
-  async load() { const s = await this.call((y) => y.game.loadData()); try { return s ? JSON.parse(s) : null; } catch { return null; } },
+  async load() { try { const s = await this.call((y) => y.game.loadData()); return s ? JSON.parse(s) : null; } catch { return null; } },
   save(obj) { this.call((y) => y.game.saveData(JSON.stringify(obj))?.catch(() => {})); },
   score(n) { this.call((y) => y.engagement.sendScore({ value: Math.floor(n) })?.catch(() => {})); },
   async interstitial() { await this.call((y) => y.ads.requestInterstitialAd()?.catch(() => {})); },
@@ -25,13 +24,15 @@ const yt = {
 };
 
 // ---------------------------------------------------------------- save
-const save = Object.assign({ best: 0, stars: 0, skins: [0], skin: 0, muted: false },
-  (() => { try { return JSON.parse(localStorage.getItem(SAVE_KEY) || '{}'); } catch { return {}; } })());
+// Progress lives in the Playables cloud save only (no other storage). saveData must wait for loadData, so
+// anything saved before the load finishes is held back (dirty) and flushed right after.
+const save = { best: 0, stars: 0, skins: [0], skin: 0 };
+let loaded = !YT, dirty = false;
 const persist = () => {
-  try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch { /* private mode */ }
-  yt.save(save); // cloud save inside Playables
+  if (!loaded) { dirty = true; return; }
+  yt.save(save);
 };
-// host audio switch (YouTube's mute) is separate from the in-game SOUND toggle; both must be on
+// the host's audio switch (YouTube's mute button) is the only sound control
 let hostAudio = YT ? !!yt.call((y) => y.system.isAudioEnabled()) : true;
 
 const SKINS = [
@@ -77,7 +78,7 @@ const sfx = {
     this.noise = n;
   },
   tone(f0, f1, vol, dur, type = 'sine', delay = 0) {
-    if (!this.ctx || save.muted || !hostAudio) return;
+    if (!this.ctx || !hostAudio) return;
     const t = this.ctx.currentTime + delay, o = this.ctx.createOscillator(), g = this.ctx.createGain();
     o.type = type;
     o.frequency.setValueAtTime(f0, t);
@@ -90,7 +91,7 @@ const sfx = {
     o.stop(t + dur + 0.05);
   },
   hiss(freq, vol, dur, type = 'lowpass') {
-    if (!this.ctx || save.muted || !hostAudio) return;
+    if (!this.ctx || !hostAudio) return;
     const t = this.ctx.currentTime, s = this.ctx.createBufferSource(), f = this.ctx.createBiquadFilter(), g = this.ctx.createGain();
     s.buffer = this.noise;
     f.type = type;
@@ -391,21 +392,30 @@ function die() {
   yt.score(score);
 }
 
+// an ad request that never answers must not leave the buttons dead
+const race = (p, ms) => Promise.race([p, new Promise((r) => setTimeout(r, ms))]);
+
 // stars are banked when the run really ends (a revive keeps them in play)
-function endRun() {
+function bankRun() {
   save.stars += runStars;
   runStars = 0;
   persist();
+}
+// the run is over: bank it and, every third run, take an ad break. The returned promise resolves when the
+// break is over; callers wait for it before the next screen, so the ad never lands on top of gameplay.
+function endRun() {
+  bankRun();
   gamesOver++;
-  // a short ad break every third finished run, never in the middle of play
-  if (gamesOver % 3 === 0) { adBusy = true; yt.interstitial().finally(() => { adBusy = false; }); }
+  if (gamesOver % 3 !== 0) return Promise.resolve();
+  adBusy = true;
+  return race(yt.interstitial(), 45000).finally(() => { adBusy = false; });
 }
 
 // rewarded ad: one second chance per run, back on the last planet reached
 async function revive() {
   if (revived || adBusy) return;
   adBusy = true;
-  const ok = await yt.rewarded('revive_once_per_run');
+  const ok = await race(yt.rewarded('revive_once_per_run'), 90000);
   adBusy = false;
   if (!ok) return;
   revived = true;
@@ -725,7 +735,6 @@ function drawUI() {
     button('play', 'PLAY', W / 2, H * 0.66, 340, 120, { size: 60 });
     button('skins', 'SKINS', W / 2, H * 0.66 + 130, 260, 84, { ghost: true, size: 34 });
     coinPill(W - 110, 60, save.stars);
-    button('mute', save.muted ? 'SOUND OFF' : 'SOUND ON', 130, 60, 220, 60, { ghost: true, size: 22 });
   } else if (state === 'skins') {
     ctx.fillStyle = 'rgba(4,5,13,0.75)';
     ctx.fillRect(0, 0, W, H);
@@ -784,19 +793,19 @@ function drawUI() {
   }
 }
 
-function onButton(id) {
+async function onButton(id) {
   sfx.unlock();
   sfx.click();
   if (adBusy) return;
   if (id === 'revive') { revive(); return; }
-  // leaving the game-over screen without reviving banks the run's stars
-  if (state === 'over' && YT && !revived && (id === 'retry' || id === 'menu')) endRun();
+  // leaving the game-over screen without reviving ends the run: bank the stars, then the (every 3rd run) ad
+  // break plays on the game-over screen, before the next screen starts
+  if (state === 'over' && YT && !revived && (id === 'retry' || id === 'menu')) await endRun();
   if (id === 'play' || id === 'retry') startGame();
   else if (id === 'skins') state = 'skins';
   else if (id === 'back' || id === 'menu') toMenu();
   else if (id === 'pause') state = 'paused';
   else if (id === 'resume') state = 'play';
-  else if (id === 'mute') { save.muted = !save.muted; persist(); }
   else if (id.startsWith('skin')) {
     const i = +id.slice(4), sk = SKINS[i];
     if (save.skins.includes(i)) save.skin = i;
@@ -823,24 +832,39 @@ addEventListener('keydown', (e) => {
   }
   if (e.code === 'Escape' || e.code === 'KeyP') { if (state === 'play') state = 'paused'; else if (state === 'paused') state = 'play'; }
 });
-document.addEventListener('visibilitychange', () => { if (document.hidden && state === 'play') state = 'paused'; });
 
 // ---------------------------------------------------------------- Playables lifecycle
+// onPause / onResume are the only pause signals (no Page Visibility API). Paused = nothing runs: the loop
+// (update AND drawing) stops, audio is suspended; onResume restarts the loop with a fresh clock.
+let hostPaused = false, looping = false;
+function startLoop() {
+  if (looping) return;
+  looping = true;
+  last = performance.now();
+  requestAnimationFrame(frame);
+}
 if (YT) {
   yt.call((y) => y.system.onAudioEnabledChange((on) => { hostAudio = on; }));
   yt.call((y) => y.system.onPause(() => {
-    if (state === 'play') state = 'paused';
-    if (state === 'over' && !revived && runStars) endRun();
+    hostPaused = true;
+    if (state === 'play') state = 'paused'; // come back to the pause screen, not mid-jump
+    // bank the stars so nothing is lost, but never start an ad from here (the ads themselves trigger onPause)
+    if (state === 'over' && !revived && !adBusy && runStars) bankRun();
     persist();
     if (sfx.ctx) sfx.ctx.suspend();
   }));
-  yt.call((y) => y.system.onResume(() => { if (sfx.ctx) sfx.ctx.resume(); }));
+  yt.call((y) => y.system.onResume(() => {
+    hostPaused = false;
+    if (sfx.ctx) sfx.ctx.resume();
+    startLoop();
+  }));
 }
 let firstFrame = true;
 
 // ---------------------------------------------------------------- loop
 let last = performance.now();
 function frame(now) {
+  if (hostPaused) { looping = false; return; }
   const dt = Math.min(1 / 30, (now - last) / 1000);
   last = now;
   if (state !== 'paused') update(dt);
@@ -857,9 +881,11 @@ function frame(now) {
   requestAnimationFrame(frame);
 }
 toMenu();
-// cloud save wins when it holds more progress than this device
+// loadData first, then saveData is allowed. The cloud save wins when it holds more progress than this run so far.
 yt.load().then((cloud) => {
-  if (cloud && (cloud.best || 0) + (cloud.stars || 0) >= save.best + save.stars) { Object.assign(save, cloud); try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch { /* */ } }
+  if (cloud && (cloud.best || 0) + (cloud.stars || 0) >= save.best + save.stars) Object.assign(save, cloud);
+  loaded = true;
+  if (dirty) { dirty = false; persist(); }
 });
-requestAnimationFrame(frame);
+startLoop();
 window.__orbit = { get state() { return state; }, get score() { return score; }, get player() { return player; }, get planets() { return planets; }, startGame, jump };
