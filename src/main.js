@@ -384,7 +384,7 @@ function bindTilt(els) {
     });
   }
 }
-bindTilt(document.querySelectorAll('.links a, .gcard'));
+bindTilt(document.querySelectorAll('.links a, .gcard, .gc'));
 renderVideos('all', false);
 
 // ------------------------------------------------------------------ games: the phone loops a trailer while on screen

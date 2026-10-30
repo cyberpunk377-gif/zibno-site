@@ -41,8 +41,25 @@ a { color: var(--green); }
 .doc .glist { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
 .by { margin-top: 3em; font-size: 15px; color: var(--soft); }
 .glist { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px; }
-.glist a { display: flex; flex-direction: column; gap: 8px; padding: 10px 10px 16px; border-radius: 16px; background: var(--panel); border: 1px solid var(--line); color: var(--ink); text-decoration: none; transition: border-color 0.2s, translate 0.25s; line-height: 1.35; }
-.glist a:hover { border-color: rgba(46, 227, 91, 0.6); translate: 0 -3px; }
+.glist a { position: relative; display: flex; flex-direction: column; gap: 8px; padding: 10px 10px 16px; border-radius: 16px; background: var(--panel); border: 1px solid var(--line); color: var(--ink); text-decoration: none; line-height: 1.35;
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); transform-style: preserve-3d;
+  transition: border-color 0.2s, translate 0.25s, box-shadow 0.3s, transform 0.45s cubic-bezier(.2, .8, .2, 1); }
+.glist a.is-hot { transition: border-color 0.2s, translate 0.25s, box-shadow 0.3s, transform 0.12s ease-out; }
+.glist a:hover { border-color: rgba(46, 227, 91, 0.6); translate: 0 -6px; box-shadow: 0 28px 50px -30px rgba(46, 227, 91, 0.65); }
+/* the light that follows the pointer, and a shine that sweeps across once on hover */
+.glist a::after { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity 0.3s;
+  background: radial-gradient(circle at var(--gx, 50%) var(--gy, 0%), rgba(46, 227, 91, 0.16), rgba(46, 227, 91, 0) 55%); }
+.glist a.is-hot::after { opacity: 1; }
+.glist a::before { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 2;
+  background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, 0.13) 50%, transparent 65%) no-repeat; background-size: 250% 100%; background-position: 130% 0; }
+.glist a:hover::before { background-position: -30% 0; transition: background-position 0.8s ease; }
+.glist a > * { transform: translateZ(22px); }
+.glist a > img { transform: translateZ(30px); transition: scale 0.5s cubic-bezier(.2, .8, .2, 1); }
+.glist a:hover > img { scale: 1.03; }
+/* deal-in: cards rise and fan in as they scroll into view (only once the script has run) */
+.glist.deal a:not(.in) { opacity: 0; translate: 0 70px; rotate: 0 0 1 4deg; }
+.glist.deal a.in { animation: deal 0.75s cubic-bezier(.2, .8, .2, 1) var(--d, 0ms) backwards; }
+@keyframes deal { from { opacity: 0; translate: 0 70px; rotate: 0 0 1 4deg; scale: 0.94; } }
 .glist img { width: 100%; height: auto; border-radius: 10px; aspect-ratio: 16 / 9; object-fit: cover; }
 .glist .tag { align-self: flex-start; font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--green); border: 1px solid rgba(46, 227, 91, 0.35); padding: 3px 8px; border-radius: 6px; }
 .glist b { font-size: 16px; }

@@ -41,6 +41,7 @@ ${SITE_URL && path ? `<link rel="canonical" href="${abs(path)}">\n<meta property
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@zibnoapex">
 <link rel="stylesheet" href="/src/page.css">
+<script type="module" src="/src/cards.js"></script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4488971638965066" crossorigin="anonymous"></script>
 ${ld.map(ldTag).join('\n')}
 </head>
