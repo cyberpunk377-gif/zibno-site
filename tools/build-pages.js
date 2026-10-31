@@ -143,14 +143,14 @@ writeFileSync('about.html', page('About Zibno', 'Zibno is an FPS mobile gaming c
 <h2>Sponsorships and affiliate links</h2>
 <p>Some links are affiliate links, such as the booster app I use for the China versions of games. I only link tools I use myself, and I mark affiliate links where they appear. For brand deals and collaborations, message me on <a href="https://t.me/zibnoofficial" target="_blank" rel="noopener">Telegram</a>, <a href="https://twitter.com/zibnoapex" target="_blank" rel="noopener">X</a>${EMAIL ? ` or by email at <a href="mailto:${EMAIL}">${EMAIL}</a>` : ''}.</p>
 <h2>Find me</h2>
-<ul><li><a href="https://www.youtube.com/@Zibnoofficial" target="_blank" rel="noopener">YouTube: @Zibnoofficial</a></li><li><a href="https://twitter.com/zibnoapex" target="_blank" rel="noopener">X: @zibnoapex</a></li><li><a href="https://t.me/zibnoofficial" target="_blank" rel="noopener">Telegram: t.me/zibnoofficial</a></li></ul>`));
+<ul><li><a href="https://www.youtube.com/@Zibnoofficial" target="_blank" rel="noopener">YouTube: @Zibnoofficial</a></li><li><a href="https://twitter.com/zibnoapex" target="_blank" rel="noopener">X: @zibnoapex</a></li><li><a href="https://t.me/zibnoofficial" target="_blank" rel="noopener">Telegram: t.me/zibnoofficial</a></li><li><a href="https://www.tiktok.com/@zibnoofficial" target="_blank" rel="noopener">TikTok: @zibnoofficial</a></li></ul>`));
 writeFileSync('contact.html', page('Contact Zibno', 'How to contact Zibno for brand deals, sponsored videos, early-access coverage, collaborations, corrections and questions about this site.', `
 <h1>Contact</h1>
 <p class="lede">Brand deals, sponsored videos, early-access coverage, collabs, or a correction to one of my guides: here is how to reach me.</p>
 <h2>Email</h2>
 <p>${EMAIL ? `<a href="mailto:${EMAIL}">${EMAIL}</a>. This is the best way for business enquiries. I usually reply within a few days.` : 'Message me on Telegram or X below.'}</p>
 <h2>Social</h2>
-<ul><li><a href="https://t.me/zibnoofficial" target="_blank" rel="noopener">Telegram: t.me/zibnoofficial</a></li><li><a href="https://twitter.com/zibnoapex" target="_blank" rel="noopener">X: @zibnoapex</a></li><li><a href="https://www.youtube.com/@Zibnoofficial" target="_blank" rel="noopener">YouTube: @Zibnoofficial</a></li></ul>
+<ul><li><a href="https://t.me/zibnoofficial" target="_blank" rel="noopener">Telegram: t.me/zibnoofficial</a></li><li><a href="https://www.tiktok.com/@zibnoofficial" target="_blank" rel="noopener">TikTok: @zibnoofficial</a></li><li><a href="https://twitter.com/zibnoapex" target="_blank" rel="noopener">X: @zibnoapex</a></li><li><a href="https://www.youtube.com/@Zibnoofficial" target="_blank" rel="noopener">YouTube: @Zibnoofficial</a></li></ul>
 <h2>Corrections</h2>
 <p>Games update often, and menus or numbers in a guide can change. If something in a guide is wrong or out of date, email me with the page link and what changed, and I will fix it.</p>
 <h2>Please note</h2>

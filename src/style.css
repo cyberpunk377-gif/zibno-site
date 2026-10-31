@@ -229,7 +229,7 @@ a { color: inherit; }
 
 
 /* contact */
-.links { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.links { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; }
 .links a { position: relative; display: flex; flex-direction: column; gap: 4px; padding: 22px 24px 24px; border-radius: 18px; text-decoration: none; background: var(--panel); border: 1px solid var(--line); transition: border-color 0.2s; }
 .links small { font-family: var(--mono); font-size: 11px; color: var(--green); margin-bottom: 18px; }
 .links b { font-family: var(--display); font-weight: 400; text-transform: uppercase; font-size: 26px; letter-spacing: 0.01em; }
