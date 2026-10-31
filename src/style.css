@@ -2,11 +2,11 @@
 @import '@fontsource/anton/latin-400.css';
 @import '@fontsource/jetbrains-mono/latin-500.css';
 
-/* Dark broadcast-HUD theme: near-black panels, hairline borders, Anton display type, mono HUD labels, Zibno green. */
+/* Warm broadcast-HUD theme: Claude-brown panels, hairline borders, Anton display type, mono HUD labels, Zibno green. */
 :root {
-  --bg: #07090a;
-  --panel: #0d1210;
-  --panel-2: #121915;
+  --bg: #262624;
+  --panel: #30302e;
+  --panel-2: #3a3936;
   --line: rgba(233, 242, 236, 0.09);
   --line-hi: rgba(233, 242, 236, 0.18);
   --ink: #e9f2ec;
@@ -37,9 +37,9 @@ a { color: inherit; }
   padding: 18px var(--gutter);
   transition: background 0.3s, padding 0.3s, border-color 0.3s; border-bottom: 1px solid transparent;
 }
-.nav.solid { background: rgba(7, 9, 10, 0.82); backdrop-filter: blur(12px); padding-top: 12px; padding-bottom: 12px; border-bottom-color: var(--line); }
+.nav.solid { background: rgba(38, 38, 36, 0.82); backdrop-filter: blur(12px); padding-top: 12px; padding-bottom: 12px; border-bottom-color: var(--line); }
 .logo-sm { justify-self: start; text-decoration: none; font-family: var(--display); font-size: 28px; letter-spacing: 0.02em; color: var(--ink); }
-.nav nav { display: flex; gap: 4px; padding: 5px; border-radius: 999px; background: rgba(13, 18, 16, 0.75); border: 1px solid var(--line); backdrop-filter: blur(10px); }
+.nav nav { display: flex; gap: 4px; padding: 5px; border-radius: 999px; background: rgba(48, 48, 46, 0.75); border: 1px solid var(--line); backdrop-filter: blur(10px); }
 .nav nav a { position: relative; text-decoration: none; font-size: 14.5px; font-weight: 600; padding: 9px 16px; border-radius: 999px; color: var(--soft); transition: color 0.2s, background 0.2s; }
 .nav nav a sup { font-family: var(--mono); font-size: 10px; font-weight: 500; margin-left: 3px; color: var(--green); opacity: 0.85; }
 .nav nav a:hover { color: var(--ink); }
@@ -77,7 +77,7 @@ a { color: inherit; }
 .btn-ghost:hover { border-color: var(--green); color: var(--green); }
 
 /* stats row: one strip with dividers */
-.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 42px 0 0; max-width: 36rem; border: 1px solid var(--line); border-radius: 16px; background: rgba(13, 18, 16, 0.6); }
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 42px 0 0; max-width: 36rem; border: 1px solid var(--line); border-radius: 16px; background: rgba(48, 48, 46, 0.6); }
 .stats div { position: relative; padding: 14px 18px; }
 .stats div + div { border-left: 1px solid var(--line); }
 .stats dt { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--soft); }
@@ -85,11 +85,11 @@ a { color: inherit; }
 
 /* the 3D scene in a monitor frame */
 .feed { margin: 0; }
-.feed-frame { position: relative; aspect-ratio: 16 / 10.5; border-radius: 20px; overflow: hidden; background: #0b0f0d;
-  box-shadow: 0 0 0 1px var(--line-hi), 0 0 0 7px rgba(13, 18, 16, 0.9), 0 0 0 8px var(--line), 0 50px 100px -40px rgba(46, 227, 91, 0.45); }
+.feed-frame { position: relative; aspect-ratio: 16 / 10.5; border-radius: 20px; overflow: hidden; background: #1f1e1d;
+  box-shadow: 0 0 0 1px var(--line-hi), 0 0 0 7px rgba(48, 48, 46, 0.9), 0 0 0 8px var(--line), 0 50px 100px -40px rgba(46, 227, 91, 0.45); }
 #scene { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; }
 .feed-frame::after { content: ''; position: absolute; inset: 0; pointer-events: none;
-  background: linear-gradient(180deg, rgba(7, 9, 10, 0.35), transparent 25%, transparent 70%, rgba(7, 9, 10, 0.55)), repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.08) 0 1px, transparent 1px 3px); }
+  background: linear-gradient(180deg, rgba(38, 38, 36, 0.35), transparent 25%, transparent 70%, rgba(38, 38, 36, 0.55)), repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.08) 0 1px, transparent 1px 3px); }
 .corner { position: absolute; z-index: 2; width: 26px; height: 26px; border: 2px solid var(--green); }
 .corner.tl { left: 16px; top: 16px; border-width: 2px 0 0 2px; }
 .corner.tr { right: 16px; top: 16px; border-width: 2px 2px 0 0; }
@@ -101,7 +101,7 @@ a { color: inherit; }
 .tc { right: 54px; bottom: 22px; }
 .game-chips { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
 .chip { position: relative; display: flex; align-items: flex-end; aspect-ratio: 16 / 7; padding: 12px 14px; border-radius: 14px; overflow: hidden; text-decoration: none; color: #fff;
-  background: linear-gradient(180deg, rgba(7, 9, 10, 0) 30%, rgba(7, 9, 10, 0.85)), var(--img) center 35% / cover; box-shadow: inset 0 0 0 1px var(--line-hi); transition: box-shadow 0.2s, transform 0.2s; }
+  background: linear-gradient(180deg, rgba(38, 38, 36, 0) 30%, rgba(38, 38, 36, 0.85)), var(--img) center 35% / cover; box-shadow: inset 0 0 0 1px var(--line-hi); transition: box-shadow 0.2s, transform 0.2s; }
 .chip span { font-family: var(--display); font-size: clamp(15px, 1.3vw, 21px); text-transform: uppercase; letter-spacing: 0.02em; }
 .chip:hover { transform: translateY(-3px); box-shadow: inset 0 0 0 2px var(--green), 0 0 30px rgba(46, 227, 91, 0.35); }
 
@@ -114,10 +114,10 @@ a { color: inherit; }
 
 /* ---------------------------------------------------------------- scroll story (pinned, scrubbed by main.js) */
 .story { position: relative; z-index: 2; height: 100vh; }
-.story-stage { position: relative; height: 100vh; overflow: hidden; background: #040706; }
+.story-stage { position: relative; height: 100vh; overflow: hidden; background: #1f1e1d; }
 .sky { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform-origin: 50% 45%; }
 .story-stage::after { content: ''; position: absolute; inset: 0; pointer-events: none;
-  background: radial-gradient(70% 60% at 50% 45%, transparent 40%, rgba(4, 7, 6, 0.75)), linear-gradient(180deg, rgba(7, 9, 10, 0.9), transparent 18%, transparent 75%, rgba(7, 9, 10, 0.7)); }
+  background: radial-gradient(70% 60% at 50% 45%, transparent 40%, rgba(31, 30, 29, 0.75)), linear-gradient(180deg, rgba(38, 38, 36, 0.9), transparent 18%, transparent 75%, rgba(38, 38, 36, 0.7)); }
 .lines { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; fill: none; stroke: rgba(233, 242, 236, 0.28); stroke-width: 1; }
 .sparks { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
 .char { position: absolute; z-index: 3; width: min(36vw, 60vh); height: auto; top: 50%; will-change: transform, filter; }
@@ -135,7 +135,7 @@ a { color: inherit; }
 /* chapter list: a small glass panel fixed on the left once you are past the story; the current chapter lights up.
    On wide screens the sections get extra left padding so the panel never sits on top of content. */
 .rail { position: fixed; z-index: 7; left: 20px; top: 50%; transform: translate(-12px, -50%); display: grid; gap: 2px; width: 132px; padding: 10px;
-  border-radius: 16px; background: rgba(13, 18, 16, 0.78); border: 1px solid var(--line); backdrop-filter: blur(12px);
+  border-radius: 16px; background: rgba(48, 48, 46, 0.78); border: 1px solid var(--line); backdrop-filter: blur(12px);
   opacity: 0; pointer-events: none; transition: opacity 0.4s, transform 0.4s; }
 .rail.show { opacity: 1; pointer-events: auto; transform: translate(0, -50%); }
 .rail a { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 10px; border-radius: 10px; text-decoration: none; color: rgba(233, 242, 236, 0.45); transition: color 0.25s, background 0.25s; }
@@ -160,7 +160,7 @@ a { color: inherit; }
 .glist-home { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin-top: 28px; }
 .gc { position: relative; display: flex; flex-direction: column; gap: 10px; padding: 12px 12px 18px; border-radius: 18px; text-decoration: none; background: var(--panel); border: 1px solid var(--line); transition: border-color 0.2s, translate 0.25s, box-shadow 0.25s; }
 .gc img { width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 11px; display: block; }
-.gc .no { position: absolute; left: 24px; top: 24px; z-index: 1; font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; padding: 4px 8px; border-radius: 6px; background: rgba(7, 9, 10, 0.8); color: var(--green); }
+.gc .no { position: absolute; left: 24px; top: 24px; z-index: 1; font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; padding: 4px 8px; border-radius: 6px; background: rgba(38, 38, 36, 0.8); color: var(--green); }
 .gc .tag, .vid .tag { align-self: flex-start; font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--green); border: 1px solid rgba(46, 227, 91, 0.35); padding: 3px 8px; border-radius: 6px; }
 .gc b { font-size: 17px; line-height: 1.3; padding: 0 4px; }
 .gc em { font-style: normal; font-family: var(--mono); font-size: 12px; color: var(--soft); padding: 0 4px; margin-top: auto; }
@@ -215,7 +215,7 @@ a { color: inherit; }
 .gcard.is-hot { border-color: rgba(46, 227, 91, 0.6); }
 .play-btn { margin-top: 18px; }
 .phone { display: block; flex: none; width: max(210px, min(300px, 19vw, 38vh)); aspect-ratio: 9 / 18.5; padding: 11px; border-radius: 42px;
-  background: linear-gradient(150deg, #1c2a21, #050806); box-shadow: 0 0 0 1px var(--line-hi), 0 34px 70px -30px rgba(46, 227, 91, 0.5);
+  background: linear-gradient(150deg, #3a3936, #1f1e1d); box-shadow: 0 0 0 1px var(--line-hi), 0 34px 70px -30px rgba(46, 227, 91, 0.5);
   transform: perspective(1400px) rotateY(-7deg) rotateX(2deg); transition: transform 0.6s cubic-bezier(.2, .8, .2, 1); }
 .phone:hover { transform: none; }
 .game + .game .phone { transform: perspective(1400px) rotateY(7deg) rotateX(2deg); }
@@ -294,7 +294,7 @@ a { color: inherit; }
   .nav { grid-template-columns: 1fr auto auto; gap: 4vw; padding: 14px 5vw; }
   .nav nav {
     position: fixed; inset: 0; z-index: -1; flex-direction: column; justify-content: center; gap: 1vh; border: 0; border-radius: 0;
-    padding: 0 10vw; background: rgba(7, 9, 10, 0.97); backdrop-filter: blur(14px);
+    padding: 0 10vw; background: rgba(38, 38, 36, 0.97); backdrop-filter: blur(14px);
     opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0s 0.3s;
   }
   .nav.open nav { opacity: 1; visibility: visible; transition: opacity 0.3s; }

@@ -30,7 +30,7 @@ const page = (title, desc, main, { path = '', image = '/hero/plate.jpg', type = 
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#07090a">
+<meta name="theme-color" content="#262624">
 <title>${esc(title)} | Zibno</title>
 <meta name="description" content="${esc(desc)}">
 ${SITE_URL && path ? `<link rel="canonical" href="${abs(path)}">\n<meta property="og:url" content="${abs(path)}">\n` : ''}<meta property="og:site_name" content="Zibno">

@@ -4,7 +4,7 @@
 
 /* Guide, about, contact and privacy pages: the same dark HUD theme as the homepage, tuned for long reading. */
 :root {
-  --bg: #07090a; --panel: #0d1210; --line: rgba(233, 242, 236, 0.09); --line-hi: rgba(233, 242, 236, 0.18);
+  --bg: #262624; --panel: #30302e; --line: rgba(233, 242, 236, 0.09); --line-hi: rgba(233, 242, 236, 0.18);
   --ink: #e9f2ec; --soft: rgba(233, 242, 236, 0.62); --green: #2ee35b;
   --display: 'Anton', 'Archivo Variable', Impact, sans-serif; --mono: 'JetBrains Mono', ui-monospace, monospace;
 }
@@ -13,7 +13,7 @@ html { background: var(--bg); }
 body { margin: 0; background: var(--bg); color: var(--ink); font-family: 'Archivo Variable', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
 a { color: var(--green); }
 :focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
-.pnav { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 28px; padding: 14px 6vw; border-bottom: 1px solid var(--line); background: rgba(7, 9, 10, 0.85); backdrop-filter: blur(12px); }
+.pnav { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 28px; padding: 14px 6vw; border-bottom: 1px solid var(--line); background: rgba(38, 38, 36, 0.85); backdrop-filter: blur(12px); }
 .logo-sm { font-family: var(--display); font-size: 26px; letter-spacing: 0.02em; color: var(--ink); text-decoration: none; }
 .pnav nav { display: flex; gap: 4px; margin-left: auto; padding: 4px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel); }
 .pnav nav a { color: var(--soft); text-decoration: none; font-weight: 600; font-size: 14.5px; padding: 8px 14px; border-radius: 999px; transition: color 0.2s, background 0.2s; }
