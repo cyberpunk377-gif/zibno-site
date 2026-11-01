@@ -254,7 +254,7 @@ a { color: inherit; }
 .vid .tag, .vid em { transform: translateZ(18px); }
 @media (hover: none) { .tilt:active { scale: 0.98; } }
 
-#tracer { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 6; pointer-events: none; }
+#knife { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 6; pointer-events: none; }
 
 .foot { position: relative; z-index: 2; display: flex; flex-wrap: wrap; gap: 24px; margin-top: 8vh; padding: 28px var(--gutter); border-top: 1px solid var(--line); font-size: 15px; color: var(--soft); }
 .foot a { color: var(--green); }
@@ -287,7 +287,7 @@ a { color: inherit; }
   .char-r { right: -8vw; margin-top: -22vw; }
   .story-copy { bottom: 12vh; }
 }
-@media (prefers-reduced-motion: reduce) { #tracer { display: none; } .ticker-track, .dot { animation: none; } }
+@media (prefers-reduced-motion: reduce) { #knife { display: none; } .ticker-track, .dot { animation: none; } }
 
 @media (max-aspect-ratio: 1/1), (max-width: 860px) {
   /* phones: the links move into a full-screen menu opened by the burger button */
