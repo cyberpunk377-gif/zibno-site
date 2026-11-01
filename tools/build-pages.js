@@ -48,7 +48,7 @@ ${ld.map(ldTag).join('\n')}
 <body>
 <header class="pnav"><a class="logo-sm" href="/">ZIBNO</a><nav><a href="/">Home</a><a href="/guides/">Guides</a><a href="/#videos">Videos</a><a href="/#games">Games</a><a href="/contact.html">Contact</a><a href="/about.html">About</a></nav></header>
 <main class="doc${cls ? ' ' + cls : ''}">${main}</main>
-<footer class="foot"><a href="/guides/">Guides</a><a href="/contact.html">Contact</a><a href="/privacy.html">Privacy policy</a><a href="/about.html">About</a><span>© 2026 Zibno</span><p class="legal">Zibno is an independent creator and is not affiliated with or endorsed by Riot Games, Tencent, TiMi, Electronic Arts, Respawn, ASUS or nubia/REDMAGIC. Game and product names and images belong to their owners. Some links on this site are affiliate links; I may earn a commission at no cost to you.</p></footer>
+<footer class="foot"><a href="/guides/">Guides</a><a href="/contact.html">Contact</a><a href="/privacy.html">Privacy policy</a><a href="/about.html">About</a><span>© 2026 Zibno</span><p class="legal">Zibno is an independent creator and is not affiliated with or endorsed by Riot Games, Tencent, TiMi, Electronic Arts or Respawn. Game names and images belong to their owners. Some links on this site are affiliate links; I may earn a commission at no cost to you.</p></footer>
 </body>
 </html>
 `;
