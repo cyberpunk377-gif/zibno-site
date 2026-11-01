@@ -246,13 +246,30 @@ renderer.setAnimationLoop(() => {
 });
 
 // ------------------------------------------------------------------ scroll knife
-// The Zibno balisong (an original design) rides the right edge in step with the page scroll, like a
-// live scrollbar. Scrolling spins it and the two hinged handles fold around the blade as a real one
-// does; each new section fires a full flip, and left alone it does a trick every few seconds.
+// The Zibno balisong (an original design) rides the right edge in step with the page scroll.
+// Ride: the knife holds still and leans while each hinged handle swings on its own spring.
+// New section: it is tossed into the page, turns end over end and is caught with the handles snapping shut.
+// Touch: hover (or tap) brings it out to show itself; a click cuts a slash across the screen.
 if (!reduced) {
   const kc = document.getElementById('knife');
   const g = kc.getContext('2d');
   const TAU = Math.PI * 2;
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const wrap = (a) => a - TAU * Math.round(a / TAU);
+
+  // A real button tracks the knife, which gives us hover, touch, keyboard and a pointer cursor for free.
+  const hit = document.createElement('button');
+  hit.id = 'knife-hit'; hit.type = 'button'; hit.setAttribute('aria-label', 'Slash with the Zibno balisong');
+  const tag = document.createElement('div');
+  tag.id = 'knife-tag'; tag.setAttribute('aria-hidden', 'true');
+  const verb = matchMedia('(hover: hover)').matches ? 'Click' : 'Tap';
+  tag.innerHTML = `<span>Heirloom tier</span><b>Zibno Balisong</b><em>Slashes <i>0</i> <u></u></em><small>${verb} to slash</small>`;
+  document.body.append(hit, tag);
+  const countEl = tag.querySelector('i'), comboEl = tag.querySelector('u');
+  let total = 0;
+  try { total = Number(localStorage.getItem('zibno-slashes')) || 0; } catch {}
+  countEl.textContent = total;
+
   let W = 0, H = 0, dpr = 1, S = 1, edge = 0;
   const fit = () => {
     dpr = Math.min(devicePixelRatio, 2); W = innerWidth; H = innerHeight; kc.width = W * dpr; kc.height = H * dpr;
@@ -265,7 +282,7 @@ if (!reduced) {
   const path = (pts) => { g.beginPath(); g.moveTo(pts[0], pts[1]); for (let i = 2; i < pts.length; i += 2) g.lineTo(pts[i], pts[i + 1]); g.closePath(); };
   // Blade: pivot at the origin, pointing up. A tanto point with a stepped spine.
   const BLADE = [-11.5, 7, 11.5, 7, 11.5, -5, 7.5, -12, 7.5, -66, 1, -88, -7.5, -74, -7.5, -40, -5, -36, -7.5, -32, -7.5, -12, -11.5, -5];
-  const drawBlade = (glint) => {
+  const drawBlade = (glint, shine) => {
     const steel = g.createLinearGradient(-8, 0, 8, 0);
     steel.addColorStop(0, '#8f9a95'); steel.addColorStop(0.46, '#f4fbf6'); steel.addColorStop(0.54, '#b9c5bf'); steel.addColorStop(1, '#eef6f0');
     path(BLADE); g.fillStyle = steel; g.fill();
@@ -275,6 +292,14 @@ if (!reduced) {
     path([-4.5, -30, 3, -30, 3, -27, -0.8, -21, 3, -21, 3, -18, -4.5, -18, -4.5, -21, -0.8, -27, -4.5, -27]);
     g.fillStyle = '#071a0e'; g.fill();
     g.fillStyle = '#2ee35b'; for (const y of [-58, -52, -46]) g.fillRect(-5, y, 3.5, 2.5); // jimping
+    if (shine >= 0) { // a band of light running up the blade
+      g.save(); path(BLADE); g.clip();
+      g.shadowBlur = 0;
+      const y = 14 - shine * 120;
+      g.fillStyle = 'rgba(255,255,255,.75)';
+      path([-14, y + 6, 14, y - 6, 14, y - 16, -14, y - 4]); g.fill();
+      g.restore();
+    }
   };
   // One handle: hinge at the origin, running down. Skeleton cut windows and a green anodised body.
   const drawHandle = (side) => {
@@ -288,26 +313,97 @@ if (!reduced) {
     g.fillStyle = '#071a0e'; g.beginPath(); g.arc(0, 0, 0.9, 0, TAU); g.fill();
     g.fillStyle = '#e9f2ec'; g.fillRect(-5.5, 82, 11, 2.2); // end cap
   };
-  // open: 1 = handles together below the blade, 0 = folded shut around it
-  const drawKnife = (x, y, rot, open, glint) => {
-    const fold = (1 - open) * Math.PI;
+  // foldL / foldR: 0 = handle shut against its partner below the blade, PI = folded up around the blade.
+  // sx squeezes the knife sideways to fake it turning about its long axis.
+  const drawKnife = (x, y, rot, foldL, foldR, scale, sx, glint, shine) => {
     const handles = () => {
-      for (const side of [-1, 1]) {
+      for (const [side, fold] of [[-1, foldL], [1, foldR]]) {
         g.save(); g.translate(side * 6, 0); g.rotate(-side * fold); drawHandle(side); g.restore();
       }
     };
     g.save();
-    g.translate(x, y); g.rotate(rot); g.scale(S, S);
-    g.shadowColor = `rgba(46,227,91,${0.35 + glint * 0.55})`; g.shadowBlur = (10 + glint * 22) * S * dpr;
-    if (open > 0.5) { handles(); drawBlade(glint); } else { drawBlade(glint); handles(); }
+    g.translate(x, y); g.rotate(rot); g.scale(scale * sx, scale);
+    g.shadowColor = `rgba(46,227,91,${0.35 + glint * 0.55})`; g.shadowBlur = (10 + glint * 22) * scale * dpr;
+    if (foldL + foldR < Math.PI) { handles(); drawBlade(glint, shine); } else { drawBlade(glint, shine); handles(); }
     g.restore();
   };
 
-  const arc = [], sparks = [];
+  // click-clack and a blade ring, made in the browser; only ever plays after a click or tap
+  let ac = null, noise = null;
+  const shing = () => {
+    try {
+      ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+      if (ac.state === 'suspended') ac.resume();
+      if (!noise) {
+        noise = ac.createBuffer(1, ac.sampleRate * 0.4, ac.sampleRate);
+        const d = noise.getChannelData(0);
+        for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      }
+      const n = ac.currentTime;
+      const src = ac.createBufferSource(), bp = ac.createBiquadFilter(), v = ac.createGain();
+      src.buffer = noise; bp.type = 'bandpass'; bp.Q.value = 3;
+      bp.frequency.setValueAtTime(7500, n); bp.frequency.exponentialRampToValueAtTime(1900, n + 0.24);
+      v.gain.setValueAtTime(0.16, n); v.gain.exponentialRampToValueAtTime(0.001, n + 0.26);
+      src.connect(bp).connect(v).connect(ac.destination); src.start(n); src.stop(n + 0.3);
+      for (const at of [0, 0.07]) {
+        const o = ac.createOscillator(), c = ac.createGain();
+        o.type = 'square'; o.frequency.value = 1700 + at * 4000;
+        c.gain.setValueAtTime(0.05, n + at); c.gain.exponentialRampToValueAtTime(0.001, n + at + 0.02);
+        o.connect(c).connect(ac.destination); o.start(n + at); o.stop(n + at + 0.03);
+      }
+    } catch {}
+  };
+
+  const arc = [], sparks = [], slashes = [];
   let seq = 0, lastRot = Math.PI, y = -1, vy = 0, lastScroll = lenis ? lenis.scroll : scrollY, last = performance.now(), flash = 0;
-  let dir = 1, spin = Math.PI, spinT = Math.PI, spinV = 0, swing = 0, still = 0, trickIn = 5, resting = true;
+  let dir = 1, ang = Math.PI + 0.24, angV = 0, phase = 0, amp = 0, still = 0, trickIn = 6, rollIn = -1;
+  let foldL = 0, foldR = 0, velL = 0, velR = 0, latchCd = 0, yaw = 0, yawV = 0, yawT = 0, toss = -1, lunge = 0;
+  let hover = false, focused = false, holdT = 0, insp = 0, leaveTimer = 0, tagOn = false, hitW = '', hitH = '';
+  let combo = 0, lastSlash = -1e9, px = 0, py = 0, scale = 1;
   const sections = [...document.querySelectorAll('section')];
   let passed = -2;
+
+  const burst = (bx, by, n, life) => { for (let i = 0; i < n; i++) sparks.push({ x: bx, y: by, vx: (Math.random() - 0.7) * 420, vy: (Math.random() - 0.5) * 380, life }); };
+  const addSlash = (a, big) => {
+    const len = Math.hypot(W, H);
+    slashes.push({ x: px, y: py, a, len, big, age: 0 });
+    for (let i = 0; i < 26; i++) {
+      const d = Math.random() * len * 0.8;
+      sparks.push({ x: px + Math.cos(a) * d, y: py + Math.sin(a) * d, vx: (Math.random() - 0.5) * 160, vy: (Math.random() - 0.5) * 160, life: 0.35 + Math.random() * 0.25 });
+    }
+  };
+  const slash = () => {
+    const now = performance.now();
+    combo = now - lastSlash < 900 ? combo + 1 : 1;
+    lastSlash = now;
+    total++;
+    try { localStorage.setItem('zibno-slashes', total); } catch {}
+    countEl.textContent = total;
+    comboEl.textContent = combo > 1 ? `x${combo}` : '';
+    const alt = combo % 2 ? 1 : -1;
+    addSlash(Math.PI - alt * 0.5, false);
+    if (combo % 3 === 0) addSlash(Math.PI + alt * 0.5, true); // every third hit crosses into an X
+    lunge = 1; flash = 1; angV += alt * 20; velL += 30; velR += 24;
+    holdT = Math.max(holdT, 2.6);
+    shing();
+  };
+  hit.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') { clearTimeout(leaveTimer); hover = true; } });
+  hit.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') leaveTimer = setTimeout(() => { hover = false; }, 220); });
+  hit.addEventListener('focus', () => { focused = hit.matches(':focus-visible'); });
+  hit.addEventListener('blur', () => { focused = false; });
+  hit.addEventListener('click', slash);
+
+  const swingHandle = (h, v, tgt, dt) => {
+    v += ((tgt - h) * 150 - v * 12) * dt;
+    h += v * dt;
+    if (h < 0) { // latch: the handles knock together and bounce
+      h = 0;
+      if (v < -6 && latchCd <= 0) { latchCd = 0.12; flash = Math.max(flash, 0.3); burst(px, py, 4, 0.3); }
+      v *= -0.38;
+    } else if (h > Math.PI) { h = Math.PI; v *= -0.38; }
+    return [h, v];
+  };
+
   const step = (now) => {
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
@@ -323,49 +419,114 @@ if (!reduced) {
     y = y < 0 ? ty : y + (ty - y) * Math.min(1, dt * 14);
     const x = W - edge + Math.sin(t * 1.3) * 3 * S;
 
-    // scroll winds the spin; once scrolling stops it lands blade-first in the direction you went
-    if (Math.abs(ds) > 0.2) { spinT += ds * 0.0062; dir = Math.sign(ds); still = 0; resting = false; trickIn = 8; }
-    else still += dt;
-    if (!resting && still > 0.14) {
-      const rest = dir > 0 ? Math.PI : 0;
-      spinT = rest + Math.round((spinT - rest) / TAU) * TAU;
-      resting = true;
-    }
-    const flip = () => { spinT += TAU * dir; };
-    if (resting && !document.hidden && (trickIn -= dt) <= 0) { trickIn = 8; spinT += TAU * 2 * dir; }
-    // crossing into a new section fires a full flip and a burst off the blade tip
+    if (Math.abs(ds) > 0.2) { dir = Math.sign(ds); still = 0; trickIn = 8; phase += ds * 0.011; } else still += dt;
+    holdT = Math.max(0, holdT - dt);
+    latchCd -= dt;
+    const showing = hover || focused || holdT > 0;
+    insp += ((showing ? 1 : 0) - insp) * Math.min(1, dt * (showing ? 9 : 6));
+
+    // the blade always points the way you are going, so reversing the scroll rolls it over
+    const rest = dir > 0 ? Math.PI + 0.24 : -0.24;
+    const angT = rest + Math.round((ang - rest) / TAU) * TAU;
+    angV += ((angT - ang) * 70 - angV * 11) * dt;
+    ang += angV * dt;
+
+    // crossing into a new section throws the knife
     const cur = sections.findIndex((s) => s.getBoundingClientRect().bottom > innerHeight * 0.5);
-    const burst = passed !== -2 && cur !== passed;
-    if (burst) { flash = 1; flip(); }
+    if (passed !== -2 && cur !== passed && toss < 0 && insp < 0.3) { toss = 0; burst(x, y, 10, 0.4); }
     passed = cur;
+    let ox = 0, oy = 0, tossAng = 0, tossYaw = 0, T = 0;
+    if (toss >= 0) {
+      toss += dt / 0.95;
+      if (toss >= 1) { toss = -1; flash = 1; burst(x, y, 18, 0.5); }
+      else {
+        T = toss;
+        const p = Math.sin(Math.PI * T), reach = Math.min(210 * S, W * 0.24);
+        ox = -p * reach; oy = p * reach * 0.6 * (y < H * 0.45 ? 1 : -1); // always arc toward the open screen
+        const e = 1 - (1 - T) ** 2.2;
+        tossAng = TAU * 2 * dir * e;
+        tossYaw = TAU * 2 * e;
+      }
+    }
 
-    spinV += ((spinT - spin) * 110 - spinV * 15) * dt;
-    spin += spinV * dt;
-    swing += (Math.min(1, Math.abs(spinV) / 7) - swing) * Math.min(1, dt * 12);
-    const open = 1 - swing * (0.5 - 0.5 * Math.cos(spin * 2));
-    const rot = spin + Math.sin(t * 1.1) * 0.05;
-    const tipX = x + Math.sin(rot) * 88 * S, tipY = y - Math.cos(rot) * 88 * S;
+    // idle trick: a turn about the long axis while one handle then the other swings out and back
+    if (still > 1 && toss < 0 && !showing && !document.hidden && (trickIn -= dt) <= 0) {
+      trickIn = 8; yawT += TAU; velL += 34; rollIn = 0.32; angV += 7 * dir;
+    }
+    if (rollIn >= 0 && (rollIn -= dt) < 0) velR += 34;
 
-    if (burst) for (let i = 0; i < 22; i++) sparks.push({ x: tipX, y: tipY, vx: (Math.random() - 0.75) * 420, vy: (Math.random() - 0.5) * 380, life: 0.55 });
-    // the tip sweeps a big angle per frame, so fill the arc in between to keep the slash a smooth curve
-    if (Math.abs(spinV) > 3) {
-      const n = Math.max(1, Math.ceil(Math.abs(rot - lastRot) / 0.1));
+    // the showcase turns slowly; when it ends, finish the turn so the face lands flat
+    if (insp > 0.5 && showing) yawT += dt * 1.5; else if (!showing) yawT = Math.ceil(yawT / TAU - 0.02) * TAU;
+    yawV += ((yawT - yaw) * 60 - yawV * 13) * dt;
+    yaw += yawV * dt;
+
+    // handles: scrolling drives a wave through them, a beat apart
+    amp += (Math.min(1, Math.abs(vy) / 1100) - amp) * Math.min(1, dt * 9);
+    let tL = amp * 2.6 * (0.5 - 0.5 * Math.cos(phase));
+    let tR = amp * 2.6 * (0.5 - 0.5 * Math.cos(phase + 1.3));
+    if (insp > 0.05) {
+      tL = Math.max(tL, insp * (0.34 + 0.1 * Math.sin(t * 2.6)));
+      tR = Math.max(tR, insp * (0.34 + 0.1 * Math.sin(t * 2.6 + 0.8)));
+    }
+    if (toss >= 0) { const o = T < 0.84 ? Math.PI / 2 : 0; tL = o; tR = o; }
+    [foldL, velL] = swingHandle(foldL, velL, tL, dt);
+    [foldR, velR] = swingHandle(foldR, velR, tR, dt);
+
+    lunge = Math.max(0, lunge - dt * 5);
+    const inward = Math.min(150 * S, W * 0.2);
+    const m = 175 * S;
+    scale = S * (1 + 0.7 * insp);
+    px = x + ox - inward * insp - lunge * 46 * S;
+    py = y + (clamp(y, m, H - m) - y) * insp + oy;
+    const base = ang + clamp(vy / 2600, -1, 1) * 0.38 + Math.sin(t * 1.1) * 0.05 + tossAng;
+    const rot = base + wrap(0.42 - base) * insp;
+    const c = Math.cos(yaw + tossYaw);
+    const sx = Math.sign(c || 1) * Math.max(0.14, Math.abs(c));
+
+    // blade tip slash left by fast turns, filled in so it stays a smooth curve
+    const tipR = 88 * scale, turned = rot - lastRot;
+    if (Math.abs(turned) > 0.07 && Math.abs(turned) < 2) {
+      const n = Math.ceil(Math.abs(turned) / 0.1);
       for (let i = 1; i <= n; i++) {
-        const r = lastRot + (rot - lastRot) * (i / n);
-        arc.push({ x: x + Math.sin(r) * 88 * S, y: y - Math.cos(r) * 88 * S, life: 1 - (1 - i / n) * dt * 3.4, seq: ++seq });
+        const r = lastRot + turned * (i / n);
+        arc.push({ x: px + Math.sin(r) * tipR, y: py - Math.cos(r) * tipR, life: 1 - (1 - i / n) * dt * 3.4, seq: ++seq });
       }
     } else seq++;
     lastRot = rot;
     for (const p of arc) p.life -= dt * 3.4;
     while (arc.length && arc[0].life <= 0) arc.shift();
+    if (insp > 0.6 && Math.random() < dt * 24) sparks.push({ x: px + (Math.random() - 0.5) * 70 * scale, y: py + (Math.random() - 0.5) * 180 * scale, vx: (Math.random() - 0.5) * 24, vy: -60 - Math.random() * 70, life: 0.8 });
     for (const s of sparks) { s.life -= dt; s.x += s.vx * dt; s.y += s.vy * dt; s.vx *= 0.94; s.vy *= 0.94; }
-    while (sparks.length && sparks[0].life <= 0) sparks.shift();
+    for (let i = sparks.length - 1; i >= 0; i--) if (sparks[i].life <= 0) sparks.splice(i, 1);
     flash = Math.max(0, flash - dt * 2.4);
 
     g.setTransform(dpr, 0, 0, dpr, 0, 0);
     g.clearRect(0, 0, W, H);
     g.globalCompositeOperation = 'lighter';
     g.lineCap = 'round';
+    if (insp > 0.02) {
+      const r = 190 * scale;
+      const halo = g.createRadialGradient(px, py, 0, px, py, r);
+      halo.addColorStop(0, `rgba(46,227,91,${0.24 * insp})`);
+      halo.addColorStop(1, 'rgba(46,227,91,0)');
+      g.fillStyle = halo;
+      g.fillRect(px - r, py - r, r * 2, r * 2);
+    }
+    for (let i = slashes.length - 1; i >= 0; i--) {
+      const s = slashes[i];
+      s.age += dt;
+      const fade = 1 - clamp((s.age - 0.09) / 0.34, 0, 1);
+      if (fade <= 0) { slashes.splice(i, 1); continue; }
+      const reach = s.len * clamp(s.age / 0.09, 0, 1);
+      const w = (s.big ? 34 : 22) * Math.max(0.8, S) * fade;
+      const cx = Math.cos(s.a), cy = Math.sin(s.a), nx = -cy, ny = cx;
+      const blade = (width, fill) => {
+        path([s.x, s.y, s.x + cx * reach * 0.42 + nx * width, s.y + cy * reach * 0.42 + ny * width, s.x + cx * reach, s.y + cy * reach, s.x + cx * reach * 0.42 - nx * width, s.y + cy * reach * 0.42 - ny * width]);
+        g.fillStyle = fill; g.fill();
+      };
+      blade(w, `rgba(46,227,91,${0.55 * fade})`);
+      blade(w * 0.28, `rgba(235,255,240,${fade})`);
+    }
     for (let i = 1; i < arc.length; i++) {
       const a = arc[i - 1], b = arc[i];
       if (b.seq !== a.seq + 1) continue;
@@ -374,9 +535,27 @@ if (!reduced) {
       g.strokeStyle = `rgba(220,255,230,${0.85 * b.life})`; g.lineWidth = 1.6 * b.life * S;
       g.beginPath(); g.moveTo(a.x, a.y); g.lineTo(b.x, b.y); g.stroke();
     }
-    for (const s of sparks) { g.fillStyle = `rgba(140,255,170,${s.life * 1.6})`; g.beginPath(); g.arc(s.x, s.y, 2, 0, TAU); g.fill(); }
+    for (const s of sparks) { g.fillStyle = `rgba(140,255,170,${Math.min(1, s.life * 1.6)})`; g.beginPath(); g.arc(s.x, s.y, 2, 0, TAU); g.fill(); }
     g.globalCompositeOperation = 'source-over';
-    drawKnife(x, y, rot, open, Math.max(flash, swing * 0.35));
+    const glint = Math.max(flash, amp * 0.3, (1 - Math.abs(c)) * 0.5, insp * 0.35);
+    drawKnife(px, py, rot, foldL, foldR, scale, sx, glint, insp > 0.3 ? (t * 0.7) % 1 : -1);
+
+    // the touch area: tight on the knife while riding; while it is showing, it also covers the way back to
+    // the rail, so the knife moving out from under a still cursor cannot make it drop out and shake
+    let bw, bh, bx, by, br;
+    if (showing || insp > 0.05) {
+      bw = W - (x - inward - 130 * S * 1.7); bh = Math.max(280, 400 * S);
+      bx = W - bw; by = clamp(y, m, H - m) - bh / 2; br = 0;
+    } else {
+      bw = Math.max(44, 64 * S); bh = Math.max(110, 190 * S);
+      bx = x - bw / 2; by = y - bh / 2; br = rot;
+    }
+    if (`${bw}` !== hitW) hit.style.width = `${hitW = `${bw}`}px`;
+    if (`${bh}` !== hitH) hit.style.height = `${hitH = `${bh}`}px`;
+    hit.style.transform = `translate(${bx}px,${by}px) rotate(${br}rad)`;
+    const wantTag = insp > 0.45;
+    if (wantTag !== tagOn) { tagOn = wantTag; tag.classList.toggle('on', tagOn); }
+    if (tagOn) tag.style.transform = `translate(${Math.max(10, px - 78 * scale - tag.offsetWidth)}px,${clamp(py - 50, 80, H - 130)}px)`;
     requestAnimationFrame(step);
   };
   requestAnimationFrame(step);

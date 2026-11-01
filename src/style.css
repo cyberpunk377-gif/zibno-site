@@ -255,6 +255,16 @@ a { color: inherit; }
 @media (hover: none) { .tilt:active { scale: 0.98; } }
 
 #knife { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 6; pointer-events: none; }
+#knife-hit { position: fixed; left: 0; top: 0; z-index: 6; padding: 0; border: 0; border-radius: 40px; background: none; cursor: pointer; outline: none; touch-action: pan-y; -webkit-tap-highlight-color: transparent; }
+#knife-hit:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+#knife-tag { position: fixed; left: 0; top: 0; z-index: 6; min-width: 168px; padding: 11px 15px; border: 1px solid var(--line-hi); border-radius: 12px; background: rgba(38, 38, 36, 0.86); backdrop-filter: blur(10px); pointer-events: none; opacity: 0; transition: opacity 0.18s; font-family: var(--mono); }
+#knife-tag.on { opacity: 1; }
+#knife-tag span { display: block; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--green); }
+#knife-tag b { display: block; margin: 3px 0 7px; font-family: var(--display); font-size: 21px; font-weight: 400; letter-spacing: 0.02em; text-transform: uppercase; color: var(--ink); }
+#knife-tag em { display: block; font-size: 11.5px; font-style: normal; color: var(--ink); }
+#knife-tag i { font-style: normal; color: var(--green); }
+#knife-tag u { margin-left: 6px; text-decoration: none; font-weight: 700; color: var(--green); }
+#knife-tag small { display: block; margin-top: 2px; font-size: 10.5px; color: var(--soft); }
 
 .foot { position: relative; z-index: 2; display: flex; flex-wrap: wrap; gap: 24px; margin-top: 8vh; padding: 28px var(--gutter); border-top: 1px solid var(--line); font-size: 15px; color: var(--soft); }
 .foot a { color: var(--green); }
