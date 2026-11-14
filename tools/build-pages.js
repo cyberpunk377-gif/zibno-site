@@ -1,6 +1,7 @@
 // Writes static HTML for the guides and the privacy policy (real text in the HTML, for search and AdSense).
 //   bun tools/build-pages.js
 import { GUIDES } from '../content/guides.js';
+import { ARCHIVED_GUIDES } from '../content/archived-guides.js';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 
 // SITE_URL=https://yourdomain.com bun tools/build-pages.js  -> also writes sitemap.xml + robots.txt with the real address
@@ -107,6 +108,33 @@ ${g.body.map(block).join('\n')}
 </div>
 <section class="more"><h2>More guides</h2><div class="glist">${related.map(card).join('')}</div></section>`, { path, image: thumb(g), type: 'article', ld, cls: 'guide' }));
 }
+// retired thin posts: a noindex page at each old URL that sends readers (and Google) to the closest live guide
+const REDIRECTS = {
+  'delta-force-mobile-beta-first-look': 'delta-force-mobile-requirements-cross-progression',
+  'how-to-create-qq-account': 'valorant-mobile-china-pre-register',
+  'high-energy-heroes-season-5-early-access': 'high-energy-heroes-settings-english',
+  'duowan-streaming-app-for-beginners': '',
+  'ios-18-call-recording': '',
+  'best-mobile-shooting-games-2024': '',
+  'high-energy-heroes-season-4-review': 'high-energy-heroes-settings-english',
+  'high-energy-heroes-monkey-king-legend-leak': 'high-energy-heroes-settings-english',
+  'high-energy-heroes-season-5-female-fade-corona-city': 'high-energy-heroes-settings-english',
+  'ios-18-best-features-wwdc-2024': '',
+};
+for (const a of ARCHIVED_GUIDES) if (!(a.slug in REDIRECTS)) throw new Error(`archived guide ${a.slug} has no entry in REDIRECTS`);
+for (const [from, to] of Object.entries(REDIRECTS)) {
+  if (to && !GUIDES.some((g) => g.slug === to)) throw new Error(`redirect target ${to} is not a live guide`);
+  const target = to ? `/guides/${to}.html` : '/guides/';
+  writeFileSync(`guides/${from}.html`, `<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Moved | Zibno</title><meta name="robots" content="noindex,follow">
+<link rel="canonical" href="${abs(target)}"><meta http-equiv="refresh" content="0; url=${target}"></head>
+<body><p>This page has moved. <a href="${target}">Continue to the new page</a>.</p></body></html>
+`);
+}
+// every [[slug|text]] link must point at a live guide
+for (const g of GUIDES) for (const [, slug] of JSON.stringify(g.body).matchAll(/\[\[([a-z0-9-]+)\|/g))
+  if (!GUIDES.some((o) => o.slug === slug)) throw new Error(`${g.slug} links to missing guide ${slug}`);
+
 writeFileSync('guides/index.html', page('Mobile shooter guides and news', 'Settings guides, gyro and movement tips and news for Valorant Mobile, Delta Force Mobile, Apex Legends Mobile and High Energy Heroes, by Zibno.', `
 <h1>Guides</h1>
 <p class="lede">My most-watched videos, written out so you can read them at your own pace, plus news on the games I cover.</p>
