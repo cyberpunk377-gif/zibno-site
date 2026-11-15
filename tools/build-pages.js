@@ -45,12 +45,18 @@ const catOf = (game) => CATEGORIES.find((c) => c.game === game);
 const NAV = [['Home', '/'], ['Guides', '/guides/'], ...CATEGORIES.map((c) => [c.game, `/guides/${c.slug}.html`]), ['Videos', '/#videos'], ['About', '/about.html'], ['Contact', '/contact.html']];
 
 // path: the page's URL path (for canonical / og:url); image: share image path; ld: structured data objects
-const page = (title, desc, main, { path = '', image = '/hero/plate.jpg', type = 'website', ld = [], cls = 'doc', fullTitle = '' } = {}) => `<!DOCTYPE html>
+const ICON_MOON = '<svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a8.5 8.5 0 1 0 10.7 10.7z"/></svg>';
+const ICON_SUN = '<svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg>';
+// the stored light/dark choice is applied before the stylesheet paints, so a dark-mode reader never sees a white flash
+const THEME_BOOT = "document.documentElement.className = 'js'; try { var t = localStorage.getItem('zibno-theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}";
+
+const page = (title, desc, main, { path = '', image = '/hero/plate.jpg', type = 'website', ld = [], cls = 'doc', fullTitle = '', progress = false } = {}) => `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#1b1b1a">
+<meta name="theme-color" content="#f6f4ee" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111311" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%232ee35b%22/%3E%3Cpath d=%22M9 9h14v3L13.5 20H23v3H9v-3l9.5-8H9z%22 fill=%22%230b2a14%22/%3E%3C/svg%3E">
 <title>${esc(fullTitle || `${title} | Zibno`)}</title>
 <meta name="description" content="${esc(desc)}">
@@ -61,7 +67,7 @@ ${SITE_URL && path ? `<link rel="canonical" href="${abs(path)}">\n<meta property
 <meta property="og:image" content="${abs(image)}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@zibnoapex">
-<script>document.documentElement.className = 'js';</script>
+<script>${THEME_BOOT}</script>
 <link rel="stylesheet" href="/src/page.css">
 <script type="module" src="/src/cards.js"></script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4488971638965066" crossorigin="anonymous"></script>
@@ -69,23 +75,26 @@ ${ld.map(ldTag).join('\n')}
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
+<div class="strap"><div class="wrap strap-in"><span><i class="dot"></i>Mobile shooter guides · Settings in English · Early access</span><span class="strap-r"><a href="${YT}" target="_blank" rel="noopener">${STATS.subs} subscribers on YouTube</a> · <a href="/guides/">${GUIDES.length} guides</a></span></div></div>
 <header class="top">
-<div class="top-in">
-<a class="logo" href="/" aria-label="Zibno home"><span class="logo-z">Z</span>ZIBNO</a>
+<div class="wrap top-in">
 <button class="menu-btn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="site-nav"><i></i><i></i><i></i></button>
+<a class="logo" href="/" aria-label="Zibno home"><span class="logo-z">Z</span><span class="logo-w">Zibno</span></a>
 <nav id="site-nav" aria-label="Main">${NAV.map(([t, h]) => `<a href="${h}"${h === path ? ' aria-current="page"' : ''}>${esc(t)}</a>`).join('')}</nav>
-<a class="top-yt" href="${YT}" target="_blank" rel="noopener">YouTube</a>
+<div class="top-act"><button class="theme-btn" type="button" aria-label="Switch colour theme">${ICON_MOON}${ICON_SUN}</button><a class="top-yt" href="${YT}" target="_blank" rel="noopener"><span>YouTube</span></a></div>
 </div>
+${progress ? '<div class="progress" aria-hidden="true"><i></i></div>' : ''}
 </header>
 <main id="main" class="${cls}">${main}</main>
 <footer class="foot">
-<div class="foot-in">
-<div class="foot-about"><a class="logo" href="/"><span class="logo-z">Z</span>ZIBNO</a><p>Mobile shooter guides, settings translated into English and early-access news, by the creator of the Zibno Official YouTube channel.</p></div>
-<div><b>Guides</b><ul><li><a href="/guides/">All guides</a></li>${CATEGORIES.map((c) => `<li><a href="/guides/${c.slug}.html">${esc(c.game)}</a></li>`).join('')}<li><a href="/guides/settings-glossary.html">Settings glossary</a></li><li><a href="/#videos">Videos</a></li><li><a href="/#games">Free games</a></li></ul></div>
-<div><b>Site</b><ul><li><a href="/about.html">About</a></li><li><a href="/about.html#how-guides-are-made">How guides are made</a></li><li><a href="/contact.html">Contact</a></li><li><a href="/privacy.html">Privacy policy</a></li><li><a href="/terms.html">Terms of use</a></li></ul></div>
-<div><b>Follow</b><ul>${SOCIAL.map(([n, , h]) => `<li>${ext(h, n)}</li>`).join('')}</ul></div>
+<div class="wrap foot-mark"><b>Zibno<span>.</span></b><p>Mobile shooter guides, settings translated into English and early-access news, by the creator of the Zibno Official YouTube channel.</p></div>
+<div class="wrap foot-in">
+<div><h3>Guides</h3><ul><li><a href="/guides/">All guides</a></li>${CATEGORIES.map((c) => `<li><a href="/guides/${c.slug}.html">${esc(c.game)}</a></li>`).join('')}<li><a href="/guides/settings-glossary.html">Settings glossary</a></li><li><a href="/#videos">Videos</a></li><li><a href="/#games">Free games</a></li></ul></div>
+<div><h3>Site</h3><ul><li><a href="/about.html">About</a></li><li><a href="/about.html#how-guides-are-made">How guides are made</a></li><li><a href="/contact.html">Contact</a></li><li><a href="/privacy.html">Privacy policy</a></li><li><a href="/terms.html">Terms of use</a></li></ul></div>
+<div><h3>Follow</h3><ul>${SOCIAL.map(([n, , h]) => `<li>${ext(h, n)}</li>`).join('')}</ul></div>
+<div class="foot-sub"><h3>New guides first</h3><p>Every guide starts as a video. Subscribe and you will see the next one the day it drops.</p><a class="btn" href="${YT}?sub_confirmation=1" target="_blank" rel="noopener">Subscribe on YouTube</a></div>
 </div>
-<p class="legal">© 2026 Zibno. Zibno is an independent creator and is not affiliated with or endorsed by Riot Games, Tencent, TiMi, Electronic Arts or Respawn. Game names and images belong to their owners. Some links on this site are affiliate links; I may earn a commission at no cost to you.</p>
+<p class="wrap legal">© 2026 Zibno. Zibno is an independent creator and is not affiliated with or endorsed by Riot Games, Tencent, TiMi, Electronic Arts or Respawn. Game names and images belong to their owners. Some links on this site are affiliate links; I may earn a commission at no cost to you.</p>
 </footer>
 </body>
 </html>
@@ -94,7 +103,9 @@ ${ld.map(ldTag).join('\n')}
 const AUTHOR = { '@type': 'Person', name: 'Zibno', url: YT };
 // guides written from the web may have no video of mine: they use game art instead (g.image)
 const thumb = (g) => (g.video ? `/videos/${g.video}.jpg` : g.image);
-const card = (g) => `<a class="card" href="/guides/${g.slug}.html"><img src="${thumb(g)}" alt="" loading="lazy" width="640" height="360"><span class="tag">${g.news ? 'News' : esc(g.game)}</span><b>${esc(g.title)}</b><em>${longDate(g.updated || g.date)} · ${mins(g)} min read</em></a>`;
+const kick = (g) => (g.news ? 'News' : esc(g.game));
+const when = (g) => `${longDate(g.updated || g.date)} · ${mins(g)} min read`;
+const card = (g) => `<a class="card" href="/guides/${g.slug}.html"><figure><img src="${thumb(g)}" alt="" loading="lazy" width="640" height="360"></figure><span class="tag">${kick(g)}</span><b>${esc(g.title)}</b><p>${esc(g.description)}</p><em>${when(g)}</em></a>`;
 // reading time from the guide's own text, about 220 words a minute
 const mins = (g) => Math.max(1, Math.round((JSON.stringify(g.body).replace(/<[^>]*>/g, ' ').match(/[A-Za-z0-9']+/g) || []).length / 220));
 const SORTED = [...GUIDES].sort((a, b) => (b.updated || b.date).localeCompare(a.updated || a.date));
@@ -121,15 +132,20 @@ for (const g of GUIDES) {
   ];
   if (faq) ld.push({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq[1].map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: plain(a) } })) });
   writeFileSync(`guides/${g.slug}.html`, page(g.title, g.description, `
-<header class="ghead">
+<header class="story-head">
 <p class="crumb">${crumbs.map(([t, h]) => `<a href="${h}">${esc(t)}</a>`).join(' / ')}</p>
+<p class="kicker">${cat ? `<a href="/guides/${cat.slug}.html">${esc(g.game)}</a>` : esc(g.game)}${g.news ? ' · News' : ' · Guide'}</p>
 <h1>${esc(g.title)}</h1>
-<p class="meta">By <a href="/about.html">Zibno</a> · ${g.updated ? `Updated <time datetime="${g.updated}">${longDate(g.updated)}</time>` : `<time datetime="${g.date}">${longDate(g.date)}</time>`} · ${mins(g)} min read${g.news ? ' · News' : ''}</p>
-<p class="lede">${esc(g.description)}</p>
+<p class="dek">${esc(g.description)}</p>
+<p class="byline"><span><img src="/chars/zibno_reach.webp" alt="" width="60" height="60">By <a href="/about.html">Zibno</a></span><span>${g.updated ? `Updated <time datetime="${g.updated}">${longDate(g.updated)}</time>` : `<time datetime="${g.date}">${longDate(g.date)}</time>`}</span><span>${mins(g)} min read</span></p>
 </header>
+<figure class="story-media">
+${g.video ? `<a class="watch" href="https://www.youtube.com/watch?v=${g.video}" target="_blank" rel="noopener"><img src="/videos/${g.video}.jpg" alt="${esc(g.title)}, video thumbnail" width="1280" height="720" fetchpriority="high"><span class="play" aria-hidden="true"></span></a>
+<figcaption><span>${g.relatedVideo ? 'Related video on my channel' : 'This guide is based on my video'}</span><a href="https://www.youtube.com/watch?v=${g.video}" target="_blank" rel="noopener">Watch on YouTube</a></figcaption>` : `<img class="hero-img" src="${g.image}" alt="${esc(g.game)}" width="1280" height="720" fetchpriority="high">
+<figcaption><span>${esc(g.game)}</span><span>Game art belongs to its owners</span></figcaption>`}
+</figure>
 <div class="gwrap">
 <article class="gart">
-${g.video ? `<a class="watch" href="https://www.youtube.com/watch?v=${g.video}" target="_blank" rel="noopener"><img src="/videos/${g.video}.jpg" alt="${esc(g.title)}, video thumbnail" width="640" height="360"><span>${g.relatedVideo ? 'Related video on my channel' : 'Watch the video on YouTube'}</span></a>` : `<img class="hero-img" src="${g.image}" alt="${esc(g.game)}" width="640" height="360">`}
 ${g.body.map(block).join('\n')}
 <p class="by">${!g.body.some(([t]) => t === 'src') ? 'Written by Zibno, based on my video. Settings can change with game updates.'
   : g.video && !g.relatedVideo ? 'Written by Zibno, based on my video, with extra research from the sources listed above. Settings can change with game updates.'
@@ -141,7 +157,7 @@ ${/settings/.test(g.slug) ? '<a class="side-gloss" href="/guides/settings-glossa
 <a class="side-yt" href="${YT}" target="_blank" rel="noopener"><b>Zibno on YouTube</b><span>Guides, settings and early-access news for mobile shooters.</span><i>Subscribe</i></a>
 </aside>
 </div>
-<section class="more"><h2>More guides</h2><div class="glist">${related.map(card).join('')}</div></section>`, { path, image: thumb(g), type: 'article', ld, cls: 'doc guide' }));
+<section class="more"><header class="rubric"><h2>Keep reading</h2><a href="/guides/">All guides</a></header><div class="glist">${related.map(card).join('')}</div></section>`, { path, image: thumb(g), type: 'article', ld, cls: 'doc guide', progress: true }));
 }
 
 // retired thin posts: a noindex page at each old URL that sends readers (and Google) to the closest live guide
@@ -184,8 +200,8 @@ for (const c of CATEGORIES) {
   const list = SORTED.filter((g) => g.game === c.game);
   const path = `/guides/${c.slug}.html`;
   writeFileSync(`guides/${c.slug}.html`, page(`${c.game} guides`, `${c.game} guides by Zibno: ${list.length} guides on settings in English, downloads and news.`, `
-<header class="phead"><p class="crumb"><a href="/">Home</a> / <a href="/guides/">Guides</a> / ${esc(c.game)}</p><h1>${esc(c.game)} guides</h1>
-<p class="lede">${esc(c.intro)}</p></header>
+<header class="cat-head" style="--img:url(${c.image})"><p class="crumb"><a href="/">Home</a> / <a href="/guides/">Guides</a> / ${esc(c.game)}</p><h1>${esc(c.game)} guides</h1>
+<p class="lede">${esc(c.intro)}</p><span class="count">${list.length} guides</span></header>
 <div class="glist">${list.map(card).join('')}</div>
 <p class="back"><a href="/guides/">See all ${GUIDES.length} guides</a></p>`, { path, image: c.image, cls: 'doc wide', ld: [{ '@context': 'https://schema.org', '@type': 'CollectionPage', name: `${c.game} guides`, hasPart: list.map((g) => ({ '@type': 'Article', headline: g.title, url: abs(`/guides/${g.slug}.html`) })) }] }));
 }
@@ -219,64 +235,92 @@ ${glossGames.map((game) => `<section class="gloss" id="${slugify(game)}"><h2>${e
     for (const el of items) { const hit = !s || el.textContent.toLowerCase().includes(s); el.hidden = !hit; n += hit; }
     for (const sec of document.querySelectorAll('.gloss')) sec.hidden = !sec.querySelector('.gitem:not([hidden])');
     count.textContent = s ? n + ' of ' + items.length : ''; none.hidden = n > 0; };
-  q.addEventListener('input', run); })();
+  q.addEventListener('input', run);
+  // the homepage search box sends ?q=: start with that search filled in
+  const pre = new URLSearchParams(location.search).get('q'); if (pre) { q.value = pre; run(); } })();
 </script>`, { path: '/guides/settings-glossary.html', cls: 'doc', ld: [{ '@context': 'https://schema.org', '@type': 'DefinedTermSet', name: 'Mobile shooter settings glossary', url: abs('/guides/settings-glossary.html'),
   hasDefinedTerm: GLOSSARY.map((e) => ({ '@type': 'DefinedTerm', name: e.term, description: plain(e.text.charAt(0).toUpperCase() + e.text.slice(1)), inDefinedTermSet: abs('/guides/settings-glossary.html') })) }] }));
 
 // ---------------------------------------------------------------- homepage
 {
+  // front page of "The Mobile Shooter Journal": masthead, lead story + numbered latest, numbers, one desk per game,
+  // the glossary finder, videos, games and a note from the editor
   const [lead, ...rest] = SORTED;
-  const vid = ([id, game, title, views, top]) => `<a class="vid" href="https://www.youtube.com/watch?v=${id}" target="_blank" rel="noopener" data-game="${game}"${top ? ' data-top' : ' hidden'}><img src="/videos/${id}.jpg" alt="" loading="lazy" width="640" height="360"><span class="tag">${esc(VIDEO_GAMES[game])}</span><b>${esc(title)}</b><em>${views} views</em></a>`;
+  const latest = rest.slice(0, 4);
+  const newest = longDate(lead.updated || lead.date);
+  const vid = ([id, game, title, views, top]) => `<a class="vid" href="https://www.youtube.com/watch?v=${id}" target="_blank" rel="noopener" data-game="${game}"${top ? ' data-top' : ' hidden'}><figure><img src="/videos/${id}.jpg" alt="" loading="lazy" width="640" height="360"></figure><span class="tag">${esc(VIDEO_GAMES[game])}</span><b>${esc(title)}</b><em>${views} views</em></a>`;
   const games = [...new Set(VIDEOS.map((v) => v[1]))];
-  const tiles = [...CATEGORIES.map((c) => [c.game, `/guides/${c.slug}.html`, c.image, GUIDES.filter((g) => g.game === c.game).length]),
-    ['More games', '/guides/', '/hero/card_apex.jpg', GUIDES.filter((g) => !catOf(g.game)).length]];
+  const others = SORTED.filter((g) => !catOf(g.game));
+  const desks = [
+    ...CATEGORIES.map((c) => ({ name: c.game, href: `/guides/${c.slug}.html`, img: c.image, list: SORTED.filter((g) => g.game === c.game) })),
+    { name: 'More games', href: '/guides/', img: '/hero/card_apex.jpg', list: others },
+  ];
+  const desk = (d) => `<div class="desk">
+<a class="desk-cover" href="${d.href}" style="--img:url(${d.img})"><b>${esc(d.name)}</b><span>${d.list.length} guide${d.list.length === 1 ? '' : 's'}</span></a>
+<ul>${d.list.slice(0, 4).map((g) => `<li><a href="/guides/${g.slug}.html">${esc(g.title)}</a></li>`).join('')}</ul>
+<a class="more-link" href="${d.href}">${d.href === '/guides/' ? `All ${GUIDES.length} guides` : `All ${esc(d.name)} guides`}</a>
+</div>`;
   writeFileSync('index.html', page('Zibno: mobile shooter guides, settings in English and news', 'Mobile shooter guides by Zibno: download guides for China and beta releases, every settings menu translated into English, and news for Valorant Mobile and Delta Force.', `
-<section class="hero">
-<div class="hero-copy">
-<p class="kicker">Mobile FPS guides · Settings in English · Early access</p>
-<h1>Play new mobile shooters <span>first</span>, and set them up right.</h1>
-<p class="lede">When a shooter launches in China or closed beta before the rest of the world, I show you how to get in, then translate every settings screen into plain English. Written guides, based on my YouTube videos.</p>
-<p class="cta"><a class="btn" href="/guides/">Read the guides</a><a class="btn ghost" href="${YT}" target="_blank" rel="noopener">Watch on YouTube</a></p>
-<dl class="stats"><div><dt>Subscribers</dt><dd>${STATS.subs}</dd></div><div><dt>Videos</dt><dd>${STATS.videos}</dd></div><div><dt>Top video</dt><dd>${STATS.top}</dd></div><div><dt>Guides</dt><dd>${GUIDES.length}</dd></div></dl>
+<section class="wrap cover" aria-labelledby="cover-title">
+<header class="cover-head">
+<h1 class="cover-title" id="cover-title">The mobile shooter <em>journal</em></h1>
+<p class="cover-dek">When a shooter launches in China or closed beta first, I show you how to get in, then translate every settings screen into plain English. <b>Written guides, based on my YouTube videos.</b></p>
+</header>
+<nav class="cover-bar" aria-label="Sections"><span><a href="/guides/valorant-mobile.html">Valorant Mobile</a></span><span><a href="/guides/delta-force.html">Delta Force</a></span><span><a href="/guides/settings-glossary.html">Settings glossary</a></span><span><a href="#games">Free games</a></span><span>Updated ${newest}</span></nav>
+<div class="cover-grid">
+<article class="lead"><a href="/guides/${lead.slug}.html">
+<figure><img src="${thumb(lead)}" alt="" width="1280" height="720" fetchpriority="high"><span class="badge">Lead story</span></figure>
+<span class="kicker">${kick(lead)}</span>
+<h2><span>${esc(lead.title)}</span></h2>
+<p>${esc(lead.description)}</p>
+<p class="meta">By Zibno · ${when(lead)}</p>
+</a></article>
+<aside class="latest-list" aria-labelledby="latest-title">
+<h2 id="latest-title">Latest</h2>
+<ol>${latest.map((g) => `<li><a href="/guides/${g.slug}.html"><div><span class="kicker">${kick(g)}</span><b>${esc(g.title)}</b><em>${when(g)}</em></div><img src="${thumb(g)}" alt="" loading="lazy" width="184" height="184"></a></li>`).join('')}</ol>
+<a class="all" href="/guides/">See all ${GUIDES.length} guides</a>
+</aside>
 </div>
-<div class="hero-art"><img src="/chars/zibno_reach.webp" alt="The Zibno mascot leaping with a game controller" width="1254" height="1254" fetchpriority="high"></div>
 </section>
 
-<section class="sec" id="guides">
-<header class="sec-head"><h2>Latest guides</h2><a href="/guides/">All guides</a></header>
-<div class="latest">
-<a class="feature" href="/guides/${lead.slug}.html"><img src="${thumb(lead)}" alt="" width="640" height="360"><div><span class="tag">${lead.news ? 'News' : esc(lead.game)}</span><b>${esc(lead.title)}</b><p>${esc(lead.description)}</p><em>${longDate(lead.updated || lead.date)}</em></div></a>
-<div class="glist">${rest.slice(0, 6).map(card).join('')}</div>
+<section class="wrap numbers" aria-label="Zibno in numbers">
+<dl><div><dt>Subscribers</dt><dd>${STATS.subs}</dd></div><div><dt>Videos</dt><dd>${STATS.videos}</dd></div><div><dt>Top video</dt><dd>${STATS.top}<small> views</small></dd></div><div><dt>Written guides</dt><dd>${GUIDES.length}</dd></div></dl>
+</section>
+
+<section class="wrap desks" id="guides">
+<header class="rubric"><h2>By game</h2><p>Every guide, filed by the game it covers.</p><a href="/guides/">All guides</a></header>
+<div class="desks-grid">${desks.map(desk).join('\n')}</div>
+</section>
+
+<section class="wrap">
+<div class="finder">
+<div><span class="kicker">Settings glossary</span><h2>Stuck on one setting? <em>Look it up.</em></h2><p>Every option from my settings guides in one searchable place, each linked to the full explanation.</p></div>
+<div><form action="/guides/settings-glossary.html" method="get" role="search"><label class="sr-only" for="finder-q">Search settings</label><input id="finder-q" name="q" type="search" placeholder="Try gyroscope, smart fire, walk…" autocomplete="off"><button type="submit">Search</button></form>
+<p class="examples">Popular: <a href="/guides/settings-glossary.html?q=gyro">gyroscope</a><a href="/guides/settings-glossary.html?q=fire">fire button</a><a href="/guides/settings-glossary.html?q=walk">walk</a></p></div>
 </div>
 </section>
 
-<section class="sec">
-<header class="sec-head"><h2>Browse by game</h2></header>
-<div class="tiles">${tiles.map(([t, h, img, n]) => `<a class="tile" href="${h}" style="--img:url(${img})"><b>${esc(t)}</b><span>${n} guide${n === 1 ? '' : 's'}</span></a>`).join('')}</div>
-</section>
-
-<section class="sec" id="videos">
-<header class="sec-head"><h2 id="vids-title">Most watched</h2>${ext(`${YT}/videos`, `All ${STATS.videos} videos`)}</header>
-<p class="lede">The videos people keep coming back to: settings, early access and the tricks that win fights.</p>
+<section class="wrap" id="videos">
+<header class="rubric"><h2 id="vids-title">Most watched</h2><p>The videos people keep coming back to.</p>${ext(`${YT}/videos`, `All ${STATS.videos} videos`)}</header>
 <div class="filters" role="tablist" aria-label="Filter videos by game"><button role="tab" data-game="all" aria-selected="true">All</button>${games.map((k) => `<button role="tab" data-game="${k}" aria-selected="false">${esc(VIDEO_GAMES[k])}</button>`).join('')}</div>
 <div class="glist vids" id="vids">${VIDEOS.map(vid).join('')}</div>
 </section>
 
-<section class="sec" id="games">
-<header class="sec-head"><h2>Free games I made</h2></header>
-<p class="lede">Small browser games I build myself, in code, from scratch. Free, no download, no sign-up.</p>
+<section class="wrap" id="games">
+<header class="rubric"><h2>From the workshop</h2><p>Small browser games I build myself, in code. Free, no download, no sign-up.</p></header>
 <div class="games">
-<a class="game" href="/play/orbit-hop/index.html"><img src="/play/orbit-hop/poster.jpg" alt="Orbit Hop gameplay" loading="lazy"><div><span class="tag">Play free</span><b>Orbit Hop</b><p>Tap to jump from planet to planet. Gravity bends your flight, so time it right, grab the stars and unlock five astronaut skins.</p></div></a>
-<a class="game" href="/play/voltlane/index.html"><img src="/play/voltlane/poster.jpg" alt="Voltlane gameplay" loading="lazy"><div><span class="tag">Play free</span><b>Voltlane</b><p>A 60-second neon score attack. Fly 16 jets armed with guns, rockets and sabers, smash through walls and chain cores up to x8.</p></div></a>
+<a class="game" href="/play/orbit-hop/index.html"><img src="/play/orbit-hop/poster.jpg" alt="Orbit Hop gameplay" loading="lazy" width="320" height="420"><div><span class="tag">Play free</span><b>Orbit Hop</b><p>Tap to jump from planet to planet. Gravity bends your flight, so time it right, grab the stars and unlock five astronaut skins.</p><span class="play">Play now →</span></div></a>
+<a class="game" href="/play/voltlane/index.html"><img src="/play/voltlane/poster.jpg" alt="Voltlane gameplay" loading="lazy" width="320" height="420"><div><span class="tag">Play free</span><b>Voltlane</b><p>A 60-second neon score attack. Fly 16 jets armed with guns, rockets and sabers, smash through walls and chain cores up to x8.</p><span class="play">Play now →</span></div></a>
 </div>
 </section>
 
-<section class="sec about-home">
-<div>
-<h2>About Zibno</h2>
-<p>I'm Zibno, a mobile FPS creator. I cover Valorant Mobile, Delta Force, Apex Legends Mobile, High Energy Heroes and whatever drops next, with a focus on games that release in China or in closed beta first.</p>
+<section class="wrap editor" aria-labelledby="editor-title">
+<div class="letter">
+<div class="letter-head"><img src="/chars/zibno_reach.webp" alt="The Zibno mascot" width="152" height="152" loading="lazy"><div><span class="kicker">From the editor</span><h2 id="editor-title">Why this site exists</h2></div></div>
+<p>My name is Zibno, and I make videos about mobile shooters. I cover Valorant Mobile, Delta Force, Apex Legends Mobile, High Energy Heroes and whatever drops next, with a focus on games that release in China or in closed beta first, when the menus are still in Chinese and nobody has explained them yet.</p>
 <p>Every guide here is based on one of my videos or on official sources, which I link. I play on my own phone, I don't publish settings I haven't looked at, and I update guides when games change.</p>
-<p class="cta"><a class="btn ghost" href="/about.html">More about me</a><a class="btn ghost" href="/contact.html">Contact</a></p>
+<p class="sign">Zibno</p>
+<p class="cta"><a class="btn" href="/about.html">More about me</a><a class="btn ghost" href="/contact.html">Contact</a></p>
 </div>
 <ul class="facts"><li><b>Early access</b><span>Download steps for China and beta releases, the day they drop.</span></li><li><b>Settings in English</b><span>Every menu translated and explained, screen by screen.</span></li><li><b>Checked and sourced</b><span>Played on my phone, sources linked, corrections welcome.</span></li></ul>
 </section>`, { path: '/', cls: 'home', fullTitle: 'Zibno: mobile shooter guides, settings in English and news', ld: [
