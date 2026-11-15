@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://zibnogaming.com/</loc><lastmod>2026-11-14</lastmod></url>
-  <url><loc>https://zibnogaming.com/guides/</loc><lastmod>2026-11-14</lastmod></url>
-  <url><loc>https://zibnogaming.com/guides/valorant-mobile.html</loc><lastmod>2026-11-14</lastmod></url>
-  <url><loc>https://zibnogaming.com/guides/delta-force.html</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://zibnogaming.com/</loc><lastmod>2026-11-15</lastmod></url>
+  <url><loc>https://zibnogaming.com/guides/</loc><lastmod>2026-11-15</lastmod></url>
+  <url><loc>https://zibnogaming.com/guides/valorant-mobile.html</loc><lastmod>2026-11-15</lastmod></url>
+  <url><loc>https://zibnogaming.com/guides/delta-force.html</loc><lastmod>2026-11-15</lastmod></url>
+  <url><loc>https://zibnogaming.com/guides/fps-basics.html</loc><lastmod>2026-11-15</lastmod></url>
   <url><loc>https://zibnogaming.com/about.html</loc></url>
   <url><loc>https://zibnogaming.com/contact.html</loc></url>
   <url><loc>https://zibnogaming.com/privacy.html</loc></url>
   <url><loc>https://zibnogaming.com/terms.html</loc></url>
-  <url><loc>https://zibnogaming.com/guides/settings-glossary.html</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://zibnogaming.com/guides/settings-glossary.html</loc><lastmod>2026-11-15</lastmod></url>
   <url><loc>https://zibnogaming.com/play/orbit-hop/</loc></url>
   <url><loc>https://zibnogaming.com/play/voltlane/</loc></url>
   <url><loc>https://zibnogaming.com/guides/valorant-mobile-basic-settings.html</loc><lastmod>2025-08-22</lastmod></url>
@@ -24,4 +25,8 @@
   <url><loc>https://zibnogaming.com/guides/ace-force-2-best-weapons.html</loc><lastmod>2024-07-09</lastmod></url>
   <url><loc>https://zibnogaming.com/guides/delta-force-warfare-mode-tips.html</loc><lastmod>2026-11-14</lastmod></url>
   <url><loc>https://zibnogaming.com/guides/valorant-mobile-gyroscope-fire-button-graphics.html</loc><lastmod>2026-11-14</lastmod></url>
+  <url><loc>https://zibnogaming.com/guides/mobile-gyroscope-aiming-guide.html</loc><lastmod>2026-11-15</lastmod></url>
+  <url><loc>https://zibnogaming.com/guides/mobile-fps-finger-layouts.html</loc><lastmod>2026-11-15</lastmod></url>
+  <url><loc>https://zibnogaming.com/guides/mobile-shooter-lag-fps-overheating-fix.html</loc><lastmod>2026-11-15</lastmod></url>
+  <url><loc>https://zibnogaming.com/guides/mobile-fps-sensitivity-guide.html</loc><lastmod>2026-11-15</lastmod></url>
 </urlset>

@@ -39,6 +39,8 @@ const CATEGORIES = [
     intro: 'Valorant Mobile launched first in China, with menus only in Chinese. These guides cover how to download and log in to the China version from outside China, every settings screen translated into English, how the mobile game differs from PC, and where the global release stands.' },
   { slug: 'delta-force', game: 'Delta Force', image: '/hero/card_deltaforce.jpg',
     intro: 'Delta Force runs on PC, console and mobile with shared progression. These guides cover the mobile settings in English, phone requirements, cross-progression and controller support, and what each new season and event adds.' },
+  { slug: 'fps-basics', game: 'FPS basics', image: '/covers/gyroscope.jpg',
+    intro: 'Skills that work in every mobile shooter, whatever you play: gyroscope aiming, finger and claw layouts, sensitivity, and fixing lag, FPS drops and overheating.' },
 ];
 const catOf = (game) => CATEGORIES.find((c) => c.game === game);
 
@@ -142,12 +144,13 @@ for (const g of GUIDES) {
 <figure class="story-media">
 ${g.video ? `<a class="watch" href="https://www.youtube.com/watch?v=${g.video}" target="_blank" rel="noopener"><img src="/videos/${g.video}.jpg" alt="${esc(g.title)}, video thumbnail" width="1280" height="720" fetchpriority="high"><span class="play" aria-hidden="true"></span></a>
 <figcaption><span>${g.relatedVideo ? 'Related video on my channel' : 'This guide is based on my video'}</span><a href="https://www.youtube.com/watch?v=${g.video}" target="_blank" rel="noopener">Watch on YouTube</a></figcaption>` : `<img class="hero-img" src="${g.image}" alt="${esc(g.game)}" width="1280" height="720" fetchpriority="high">
-<figcaption><span>${esc(g.game)}</span><span>Game art belongs to its owners</span></figcaption>`}
+<figcaption><span>${esc(g.game)}</span><span>${g.image.startsWith('/covers/') ? 'Cover by Zibno' : 'Game art belongs to its owners'}</span></figcaption>`}
 </figure>
 <div class="gwrap">
 <article class="gart">
 ${g.body.map(block).join('\n')}
-<p class="by">${!g.body.some(([t]) => t === 'src') ? 'Written by Zibno, based on my video. Settings can change with game updates.'
+<p class="by">${!g.video && !g.body.some(([t]) => t === 'src') ? 'Written by Zibno. Menu names differ between games, so look for the closest option in yours.'
+  : !g.body.some(([t]) => t === 'src') ? 'Written by Zibno, based on my video. Settings can change with game updates.'
   : g.video && !g.relatedVideo ? 'Written by Zibno, based on my video, with extra research from the sources listed above. Settings can change with game updates.'
   : 'Written by Zibno from the sources listed above. I update this page when something official changes.'}</p>
 ${authorBox}

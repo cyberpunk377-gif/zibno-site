@@ -1030,7 +1030,7 @@ mark,
 /* desks: one column per game */
 .desks-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: clamp(20px, 3vw, 40px);
 }
 
@@ -2651,9 +2651,7 @@ mark,
     grid-template-columns: 1fr 1fr;
   }
 
-  .desk:last-child {
-    grid-column: 1 / -1;
-  }
+
 
   .games {
     grid-template-columns: 1fr;
@@ -2716,9 +2714,7 @@ mark,
     grid-template-columns: 1fr;
   }
 
-  .desk:last-child {
-    grid-column: auto;
-  }
+
 
   .glist,
   .more .glist {
