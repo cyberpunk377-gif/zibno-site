@@ -1,24 +1,12 @@
-// Guide cards on the guide pages: they deal in as they scroll into view, then lean toward the pointer in 3D
-// with a light that follows it. No GSAP here: these pages only load page.css and this file.
+// The one small script every page loads: cards lean toward the pointer in 3D with a light that follows it,
+// the phone menu opens from the burger, and the homepage video tabs filter by game.
+// Cards are always visible: nothing waits for a scroll to appear.
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const canHover = matchMedia('(hover: hover) and (pointer: fine)').matches;
-const MAX = 9; // degrees of lean at the card's edge
+const MAX = 6; // degrees of lean at the card's edge
 
 for (const list of document.querySelectorAll('.glist')) {
   const cards = [...list.querySelectorAll('a')];
-  if (!reduced) {
-    // deal-in: each row's cards rise and fan in one after the other
-    list.classList.add('deal');
-    const io = new IntersectionObserver((entries) => {
-      for (const e of entries) {
-        if (!e.isIntersecting) continue;
-        io.unobserve(e.target);
-        e.target.style.setProperty('--d', `${(cards.indexOf(e.target) % 4) * 80}ms`);
-        e.target.classList.add('in');
-      }
-    }, { rootMargin: '0px 0px -8% 0px' });
-    cards.forEach((c) => io.observe(c));
-  }
   if (reduced || !canHover) continue;
   for (const el of cards) bindTilt(el);
 }
@@ -49,4 +37,25 @@ function bindTilt(el) {
     move(e);
   });
   addEventListener('scroll', release, { passive: true }); // the measured rect is stale once the page moves
+}
+
+// phone menu: the burger opens the nav under the header
+{
+  const top = document.querySelector('.top'), btn = top?.querySelector('.menu-btn');
+  btn?.addEventListener('click', () => {
+    const open = top.classList.toggle('open');
+    btn.setAttribute('aria-expanded', String(open));
+  });
+}
+
+// homepage videos: "All" shows the pinned ones, a game tab shows every video for that game
+{
+  const grid = document.getElementById('vids'), title = document.getElementById('vids-title');
+  const tabs = [...document.querySelectorAll('.filters button')];
+  for (const tab of tabs) tab.addEventListener('click', () => {
+    const game = tab.dataset.game;
+    for (const t of tabs) t.setAttribute('aria-selected', String(t === tab));
+    for (const v of grid.children) v.hidden = game === 'all' ? !v.hasAttribute('data-top') : v.dataset.game !== game;
+    title.textContent = game === 'all' ? 'Most watched' : `${tab.textContent} videos`;
+  });
 }
